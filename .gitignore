@@ -1,8 +1,8 @@
 node_modules/
-.env
 *.db
 *.sqlite
 *.log
 .DS_Store
 client/assets/cards/uploads/
 admin/assets/uploads/
+uploads/

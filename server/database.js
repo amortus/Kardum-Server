@@ -4,6 +4,12 @@ const path = require('path');
 let db;
 let dbType = 'sqlite';
 let usePostgres = false;
+const DEFAULT_CHARACTER = {
+    gender: 'male',
+    body_id: 'clothes',
+    head_id: 'male_head1',
+    character_completed: 0
+};
 
 // Detectar qual banco usar
 if (process.env.DATABASE_URL) {
@@ -160,6 +166,10 @@ async function initDatabase() {
                     total_matches INTEGER DEFAULT 0,
                     wins INTEGER DEFAULT 0,
                     losses INTEGER DEFAULT 0,
+                    gender VARCHAR(16) DEFAULT 'male',
+                    body_id VARCHAR(64) DEFAULT 'clothes',
+                    head_id VARCHAR(64) DEFAULT 'male_head1',
+                    character_completed INTEGER DEFAULT 0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     last_login TIMESTAMP,
                     is_admin INTEGER DEFAULT 0
@@ -239,6 +249,10 @@ async function initDatabase() {
                 total_matches INTEGER DEFAULT 0,
                 wins INTEGER DEFAULT 0,
                 losses INTEGER DEFAULT 0,
+                gender TEXT DEFAULT 'male',
+                body_id TEXT DEFAULT 'clothes',
+                head_id TEXT DEFAULT 'male_head1',
+                character_completed INTEGER DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 last_login DATETIME,
                 is_admin INTEGER DEFAULT 0
@@ -332,12 +346,57 @@ async function seedDatabase() {
     }
 }
 
+async function migrateCharacterColumns() {
+    try {
+        if (usePostgres) {
+            await dbHelpers.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR(16) DEFAULT 'male'");
+            await dbHelpers.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS body_id VARCHAR(64) DEFAULT 'clothes'");
+            await dbHelpers.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS head_id VARCHAR(64) DEFAULT 'male_head1'");
+            await dbHelpers.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS character_completed INTEGER DEFAULT 0");
+        } else {
+            const columns = await dbHelpers.queryAll('PRAGMA table_info(users)');
+            const columnNames = new Set(columns.map((col) => col.name));
+
+            if (!columnNames.has('gender')) {
+                await dbHelpers.exec("ALTER TABLE users ADD COLUMN gender TEXT DEFAULT 'male'");
+            }
+            if (!columnNames.has('body_id')) {
+                await dbHelpers.exec("ALTER TABLE users ADD COLUMN body_id TEXT DEFAULT 'clothes'");
+            }
+            if (!columnNames.has('head_id')) {
+                await dbHelpers.exec("ALTER TABLE users ADD COLUMN head_id TEXT DEFAULT 'male_head1'");
+            }
+            if (!columnNames.has('character_completed')) {
+                await dbHelpers.exec("ALTER TABLE users ADD COLUMN character_completed INTEGER DEFAULT 0");
+            }
+        }
+
+        await dbHelpers.run(
+            `UPDATE users
+             SET gender = COALESCE(gender, ?),
+                 body_id = COALESCE(body_id, ?),
+                 head_id = COALESCE(head_id, ?),
+                 character_completed = COALESCE(character_completed, ?)`,
+            [
+                DEFAULT_CHARACTER.gender,
+                DEFAULT_CHARACTER.body_id,
+                DEFAULT_CHARACTER.head_id,
+                DEFAULT_CHARACTER.character_completed
+            ]
+        );
+    } catch (error) {
+        console.error('❌ Error migrating character columns:', error);
+        throw error;
+    }
+}
+
 // Initialize and seed (async) - não bloquear servidor
 let dbInitialized = false;
 (async () => {
     try {
         console.log('🔄 Initializing database...');
         await initDatabase();
+        await migrateCharacterColumns();
         await seedDatabase();
         dbInitialized = true;
         console.log('✅ Database ready');
@@ -354,6 +413,7 @@ module.exports = {
     db,
     dbType,
     usePostgres,
+    dbHelpers,
 
     // User functions
     getUserById: async (id) => {
@@ -368,6 +428,18 @@ module.exports = {
         return await dbHelpers.run(
             'INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)',
             [username, passwordHash, email]
+        );
+    },
+
+    updateUserCharacter: async (userId, { gender, body_id, head_id, character_completed }) => {
+        return await dbHelpers.run(
+            `UPDATE users
+             SET gender = ?,
+                 body_id = ?,
+                 head_id = ?,
+                 character_completed = ?
+             WHERE id = ?`,
+            [gender, body_id, head_id, character_completed, userId]
         );
     },
     

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kardum Admin Dashboard</title>
     <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/card-editor.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -47,6 +48,18 @@
                 <a href="#" class="nav-item" data-page="logs">
                     📝 Logs
                 </a>
+                <a href="#" class="nav-item" data-page="boosters">
+                    📦 Boosters
+                </a>
+                <a href="#" class="nav-item" data-page="monsters">
+                    👹 Monstros MMO
+                </a>
+                <a href="#" class="nav-item" data-page="quests">
+                    📜 NPCs e Quests
+                </a>
+                <a href="#" class="nav-item" data-page="commands">
+                    ⌨️ Comandos Admin
+                </a>
             </nav>
             <div class="sidebar-footer">
                 <button id="btn-logout">Sair</button>
@@ -81,14 +94,16 @@
             <div class="page" id="page-cards">
                 <div class="page-header">
                     <h1>Gerenciar Cartas</h1>
-                    <button class="btn-primary" id="btn-new-card">➕ Nova Carta</button>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn-primary" id="btn-new-card">+ Nova Carta</button>
+                        <button class="btn-secondary" id="btn-open-vfx-universal">Editor Universal VFX</button>
+                    </div>
                 </div>
 
                 <div class="search-bar">
                     <input type="text" id="card-search" placeholder="Buscar cartas...">
                     <select id="filter-type">
                         <option value="">Todos os Tipos</option>
-                        <option value="general">General</option>
                         <option value="defender">Defensor</option>
                         <option value="equipment">Equipamento</option>
                         <option value="mount">Montaria</option>
@@ -103,6 +118,14 @@
                         <option value="dwarf">Anão</option>
                         <option value="elf">Elfo</option>
                     </select>
+                    <select id="filter-collection">
+                        <option value="">Todas as Coleções</option>
+                    </select>
+                    <select id="filter-availability">
+                        <option value="">Disponibilidade (todas)</option>
+                        <option value="false">Indisponíveis</option>
+                        <option value="true">Disponíveis</option>
+                    </select>
                 </div>
 
                 <div class="cards-table">
@@ -112,10 +135,12 @@
                                 <th>ID</th>
                                 <th>Nome</th>
                                 <th>Tipo</th>
+                                <th>Coleção</th>
                                 <th>Raça</th>
                                 <th>Custo</th>
                                 <th>Ataque</th>
                                 <th>Defesa</th>
+                                <th>Disponível</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -162,6 +187,343 @@
                     <div class="log-entry">Sistema inicializado</div>
                 </div>
             </div>
+
+            <!-- Boosters Page -->
+            <div class="page" id="page-boosters">
+                <div class="page-header">
+                    <h1>Gerenciar Boosters</h1>
+                    <button class="btn-primary" id="btn-new-booster">➕ Novo Booster</button>
+                </div>
+                <div id="boosters-list">
+                    <!-- Boosters will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Admin Commands Page -->
+            <div class="page" id="page-commands">
+                <div class="page-header">
+                    <h1>Comandos Admin</h1>
+                    <button class="btn-secondary" id="btn-refresh-commands">Atualizar</button>
+                </div>
+                <p style="margin-bottom:12px;color:#9ca3af">
+                    Catálogo de comandos administrativos disponíveis no jogo (chat). Atualize esta seção conforme novos comandos forem adicionados.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Comando</th>
+                            <th>Descrição</th>
+                            <th>Escopo</th>
+                            <th>Permissão</th>
+                            <th>Exemplo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="commands-list"></tbody>
+                </table>
+            </div>
+
+            <!-- Monsters Page -->
+            <div class="page" id="page-monsters">
+                <div class="page-header">
+                    <h1>Monstros MMO</h1>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn-secondary" id="btn-refresh-monsters">Atualizar</button>
+                        <button class="btn-secondary" id="btn-seed-monster-cards">Seed Cartas Monstro</button>
+                        <button class="btn-secondary" id="btn-seed-shadowland-cards">Seed Shadowland Creatures</button>
+                        <button class="btn-primary" id="btn-new-monster-template">+ Novo Monstro</button>
+                        <button class="btn-primary" id="btn-new-monster-spawn">+ Novo Spawn</button>
+                    </div>
+                </div>
+                <div class="search-bar">
+                    <input type="text" id="monster-search" placeholder="Buscar templates...">
+                    <select id="monster-filter-difficulty">
+                        <option value="">Todas as Dificuldades</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                    <select id="monster-filter-collection">
+                        <option value="">Todas as Coleções</option>
+                    </select>
+                </div>
+                <h3>Templates</h3>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>Nome</th><th>Coleção</th><th>Visual</th><th>Deck</th><th>Dificuldade</th><th>Modo Deck</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody id="monster-templates-list"></tbody>
+                </table>
+                <h3 style="margin-top:16px">Spawns (Shadowland)</h3>
+                <table>
+                    <thead>
+                        <tr><th>Spawn UID</th><th>Template</th><th>Posição</th><th>Raio</th><th>Respawn</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody id="monster-spawns-list"></tbody>
+                </table>
+            </div>
+
+            <div class="page" id="page-quests">
+                <div class="page-header">
+                    <h1>NPCs e Quests</h1>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn-secondary" id="btn-refresh-quests">Atualizar</button>
+                        <button class="btn-secondary" id="btn-seed-initial-npc-quest">Seed NPC + Quest Inicial</button>
+                        <button class="btn-primary" id="btn-new-npc-template">+ NPC Template</button>
+                        <button class="btn-primary" id="btn-new-npc-spawn">+ NPC Spawn</button>
+                        <button class="btn-primary" id="btn-new-quest-definition">+ Quest</button>
+                    </div>
+                </div>
+
+                <h3>NPC Templates</h3>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>Code</th><th>Nome</th><th>Sprite</th><th>Frames</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody id="npc-templates-list"></tbody>
+                </table>
+
+                <h3 style="margin-top:16px">NPC Spawns (Shadowland)</h3>
+                <table>
+                    <thead>
+                        <tr><th>Spawn UID</th><th>NPC</th><th>Zona</th><th>Posição</th><th>Raio</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody id="npc-spawns-list"></tbody>
+                </table>
+
+                <h3 style="margin-top:16px">Quest Definitions</h3>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>Code</th><th>Título</th><th>Objetivos</th><th>Rewards</th><th>Ativa</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody id="quest-definitions-list"></tbody>
+                </table>
+            </div>
+
+            <div id="npc-template-modal" class="modal hidden">
+                <div class="modal-backdrop"></div>
+                <div class="modal-content">
+                    <h2>Novo NPC Template</h2>
+                    <form id="npc-template-form">
+                        <div class="form-grid">
+                            <input type="hidden" name="id">
+                            <div class="form-group"><label>Code</label><input type="text" name="code" required></div>
+                            <div class="form-group"><label>Nome</label><input type="text" name="name" required></div>
+                            <div class="form-group full-width"><label>Sprite</label><input type="text" name="sprite_ref" required></div>
+                            <div class="form-group"><label>Frames</label><input type="number" name="frame_count" min="1" value="6"></div>
+                            <div class="form-group"><label>Cols</label><input type="number" name="frame_cols" min="1" value="6"></div>
+                            <div class="form-group"><label>Rows</label><input type="number" name="frame_rows" min="1" value="1"></div>
+                            <div class="form-group"><label>Idle Start</label><input type="number" name="idle_start" min="0" value="0"></div>
+                            <div class="form-group"><label>Idle Count</label><input type="number" name="idle_count" min="1" value="6"></div>
+                            <div class="form-group full-width"><label>Dialogo JSON (array)</label><textarea name="dialogue_json" rows="4"></textarea></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" id="btn-cancel-npc-template">Cancelar</button>
+                            <button type="submit" class="btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="npc-spawn-modal" class="modal hidden">
+                <div class="modal-backdrop"></div>
+                <div class="modal-content">
+                    <h2>Novo NPC Spawn</h2>
+                    <form id="npc-spawn-form">
+                        <div class="form-grid">
+                            <input type="hidden" name="spawn_uid">
+                            <div class="form-group"><label>NPC Template</label><select name="npc_template_id" id="npc-spawn-template-id" required></select></div>
+                            <div class="form-group"><label>Zona</label><input type="text" name="zone" value="shadowland" required></div>
+                            <div class="form-group"><label>Pos X</label><input type="number" step="0.1" name="spawn_x" value="0"></div>
+                            <div class="form-group"><label>Pos Y</label><input type="number" step="0.1" name="spawn_y" value="0"></div>
+                            <div class="form-group"><label>Raio interação</label><input type="number" step="0.1" name="interaction_radius" value="90"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" id="btn-cancel-npc-spawn">Cancelar</button>
+                            <button type="submit" class="btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="quest-definition-modal" class="modal hidden">
+                <div class="modal-backdrop"></div>
+                <div class="modal-content">
+                    <h2>Quest Definition</h2>
+                    <form id="quest-definition-form">
+                        <div class="form-grid">
+                            <input type="hidden" name="id">
+                            <div class="form-group"><label>Code</label><input type="text" name="code" required></div>
+                            <div class="form-group"><label>Titulo</label><input type="text" name="title" required></div>
+                            <div class="form-group full-width"><label>Descricao</label><textarea name="description" rows="3"></textarea></div>
+                            <div class="form-group"><label>NPC Quest Giver</label><select name="giver_npc_template_id" id="quest-giver-npc-id"></select></div>
+                            <div class="form-group"><label>NPC Turn-in</label><select name="turnin_npc_template_id" id="quest-turnin-npc-id"></select></div>
+                            <div class="form-group"><label>Nivel min.</label><input type="number" name="min_level" min="1" value="1"></div>
+                            <div class="form-group"><label>Recorrencia</label>
+                                <select name="recurrence_type">
+                                    <option value="none">none</option>
+                                    <option value="daily">daily</option>
+                                    <option value="weekly">weekly</option>
+                                    <option value="cooldown">cooldown</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Logica objetivo</label>
+                                <select name="objective_logic">
+                                    <option value="all">all</option>
+                                    <option value="any">any</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Auto Track</label><input type="checkbox" name="auto_track" checked></div>
+                            <div class="form-group"><label>Ativa</label><input type="checkbox" name="is_active" checked></div>
+                            <div class="form-group full-width"><label>Objectives JSON</label><textarea name="objectives_json" rows="8"></textarea></div>
+                            <div class="form-group"><label>Reward EXP</label><input type="number" name="reward_exp_amount" min="0" value="3"></div>
+                            <div class="form-group"><label>Match Type EXP</label>
+                                <select name="reward_exp_match_type">
+                                    <option value="ai">ai</option>
+                                    <option value="casual">casual</option>
+                                    <option value="ranked">ranked</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Reward Cartas (1 ou mais)</label>
+                                <select name="reward_card_ids" id="quest-reward-card-ids" multiple size="10"></select>
+                                <small>Use Ctrl (Windows) para selecionar varias cartas.</small>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Outros rewards (preservados automaticamente)</label>
+                                <textarea name="extra_rewards_json" rows="4" readonly></textarea>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" id="btn-cancel-quest-definition">Cancelar</button>
+                            <button type="submit" class="btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="monster-template-modal" class="modal hidden">
+                <div class="modal-backdrop"></div>
+                <div class="modal-content">
+                    <h2 id="monster-template-modal-title">Novo Monstro</h2>
+                    <form id="monster-template-form">
+                        <div class="form-grid">
+                            <input type="hidden" name="id">
+                            <div class="form-group">
+                                <label>Nome</label>
+                                <input type="text" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Dificuldade</label>
+                                <select name="difficulty">
+                                    <option value="easy">Easy</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="hard">Hard</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Coleção</label>
+                                <select name="collection_id" id="monster-template-collection"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Modo Deck</label>
+                                <select name="deck_mode">
+                                    <option value="auto">Auto</option>
+                                    <option value="manual">Manual</option>
+                                    <option value="hybrid" selected>Hybrid</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Visual</label>
+                                <div style="display:flex;gap:8px;align-items:center">
+                                    <select id="monster-visual-preset" style="max-width:220px">
+                                        <option value="">Preset (opcional)</option>
+                                        <option value="Monstro1">Monstro1 (avatar modular)</option>
+                                        <option value="Monstro2">Monstro2 (avatar modular)</option>
+                                        <option value="Monstro3">Monstro3 (avatar modular)</option>
+                                    </select>
+                                    <input type="text" name="visual" placeholder="Monstro1 ou res://assets/cards/Orc/Chefe de Guerra.png" required>
+                                </div>
+                                <div id="monster-visual-preview" class="monster-visual-preview">
+                                    <div class="monster-visual-preview-badge" id="monster-visual-preview-badge">M1</div>
+                                    <div class="monster-visual-preview-meta">
+                                        <div class="monster-visual-preview-title" id="monster-visual-preview-title">Monstro1</div>
+                                        <div class="monster-visual-preview-subtitle" id="monster-visual-preview-subtitle">Male • leather_armor • male_head2</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Deck Manual (IDs separados por vírgula)</label>
+                                <textarea name="manual_deck_cards" rows="4"></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Drops de Cartas (desbloqueio)</label>
+                                <div id="monster-drops-editor" class="monster-drops-editor">
+                                    <div class="monster-drops-row">
+                                        <select id="monster-drop-card-select"></select>
+                                        <input type="number" id="monster-drop-chance-input" min="0" max="100" step="0.1" placeholder="% chance">
+                                        <button type="button" class="btn-secondary" id="btn-add-monster-drop">Adicionar/Atualizar</button>
+                                    </div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Carta</th>
+                                                <th>Chance (%)</th>
+                                                <th>Ação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="monster-template-drops-list"></tbody>
+                                    </table>
+                                    <small id="monster-drops-hint">Salve o template primeiro para editar drops.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Salvar</button>
+                            <button type="button" class="btn-secondary" id="btn-cancel-monster-template">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="monster-spawn-modal" class="modal hidden">
+                <div class="modal-backdrop"></div>
+                <div class="modal-content">
+                    <h2 id="monster-spawn-modal-title">Novo Spawn</h2>
+                    <form id="monster-spawn-form">
+                        <div class="form-grid">
+                            <input type="hidden" name="spawn_uid">
+                            <div class="form-group">
+                                <label>Template</label>
+                                <select name="template_id" id="monster-spawn-template" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Zona</label>
+                                <input type="text" name="zone" value="shadowland" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Spawn X</label>
+                                <input type="number" name="spawn_x" value="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Spawn Y</label>
+                                <input type="number" name="spawn_y" value="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Raio Movimento</label>
+                                <input type="number" name="move_radius" value="120" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Respawn (segundos)</label>
+                                <input type="number" name="respawn_seconds" value="60" min="1" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Salvar</button>
+                            <button type="button" class="btn-secondary" id="btn-cancel-monster-spawn">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -183,7 +545,6 @@
                     <div class="form-group">
                         <label>Tipo</label>
                         <select name="type" required>
-                            <option value="general">General</option>
                             <option value="defender">Defensor</option>
                             <option value="equipment">Equipamento</option>
                             <option value="mount">Montaria</option>
@@ -241,6 +602,53 @@
                             <option value="legendary">Lendária</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Coleção</label>
+                        <select name="collection_id" id="card-collection-select">
+                            <option value="standard">Standard</option>
+                            <option value="monsters_1">Monsters 1</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Habilidades</label>
+                        <div class="abilities-grid">
+                            <label class="ability-checkbox"><input type="checkbox" name="abilities" value="rush"> Rush</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="abilities" value="taunt"> Taunt</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="abilities" value="divine_shield"> Divine Shield</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="abilities" value="lifesteal"> Lifesteal</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="abilities" value="regenerate"> Regenerate</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="abilities" value="stealth"> Stealth</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="abilities" value="poison"> Poison</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="abilities" value="charge"> Charge</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="abilities" value="draw_card"> Draw Card</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="abilities" value="buff_all"> Buff All</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="abilities" value="damage_all"> Damage All</label>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Aura Visual</label>
+                        <div class="abilities-grid">
+                            <label class="ability-checkbox"><input type="checkbox" name="visual_auras" value="DIVINE_SHIELD"> Divine Shield (dourada)</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="visual_auras" value="RUSH"> Rush (vento azul)</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="visual_auras" value="TAUNT"> Taunt (escudo cinza)</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="visual_auras" value="LIFESTEAL"> Lifesteal (vermelha)</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="visual_auras" value="STEALTH"> Stealth (roxa)</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="visual_auras" value="POISON"> Poison (verde tóxica)</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="visual_auras" value="CHARGE"> Charge (vento azul)</label>
+                            <label class="ability-checkbox"><input type="checkbox" name="visual_auras" value="REGENERATE"> Regenerate (verde cura)</label>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Efeitos / Habilidade</label>
+                        <div id="effects-list"></div>
+                        <button type="button" class="btn-secondary" id="btn-add-effect" style="margin-top:6px">+ Adicionar Efeito</button>
+                    </div>
+                    <div class="form-group">
+                        <label class="unlock-toggle">
+                            <input type="checkbox" name="default_unlocked" value="1" checked>
+                            Desbloqueada por padrão
+                        </label>
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Salvar</button>
@@ -250,6 +658,212 @@
         </div>
     </div>
 
+    <!-- Card Editor Modal -->
+    <div id="card-editor-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content card-editor-modal">
+            <div class="card-editor-header">
+                <h2 id="editor-title">Editor Visual de Carta</h2>
+                <button class="btn-close" id="btn-close-editor">✕</button>
+            </div>
+            <div class="card-editor-body">
+                <div class="card-editor-preview">
+                    <div class="zoom-controls">
+                        <button class="btn-zoom" id="btn-zoom-out">−</button>
+                        <span id="zoom-level">100%</span>
+                        <button class="btn-zoom" id="btn-zoom-in">+</button>
+                        <button class="btn-zoom" id="btn-zoom-reset">Reset</button>
+                    </div>
+                    <div class="canvas-container" id="canvas-container">
+                        <canvas id="card-editor-canvas" width="180" height="260"></canvas>
+                    </div>
+                </div>
+                <div class="card-editor-controls">
+                    <div class="control-section editor-properties mode-vfx-only">
+                        <h3 id="editor-properties-title">Propriedades da Carta</h3>
+                        <div class="form-group">
+                            <label>Nome</label>
+                            <input type="text" id="editor-card-name" />
+                        </div>
+                        <div class="form-group">
+                            <label>Custo</label>
+                            <input type="number" id="editor-card-cost" min="0" max="10" />
+                        </div>
+                        <div class="form-group">
+                            <label>Ataque</label>
+                            <input type="number" id="editor-card-attack" min="0" />
+                        </div>
+                        <div class="form-group">
+                            <label>Defesa</label>
+                            <input type="number" id="editor-card-defense" min="0" />
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <textarea id="editor-card-text" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="control-section mode-vfx-only">
+                        <h3>Cardbase Global</h3>
+                        <div class="form-group">
+                            <label>Cardbase ativo (URL)</label>
+                            <input type="text" id="global-cardbase-url" placeholder="/uploads/card_bases/global_cardbase.png?v=..." />
+                        </div>
+                        <div class="form-group">
+                            <label>Selecionar imagem existente</label>
+                            <select id="global-cardbase-select">
+                                <option value="">Selecione uma imagem...</option>
+                            </select>
+                            <button class="btn-small" id="btn-apply-global-cardbase-select">Aplicar selecionada</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Upload de novo cardbase</label>
+                            <input type="file" id="global-cardbase-file" accept="image/png,image/jpeg,image/webp" />
+                            <button class="btn-small" id="btn-upload-global-cardbase">Enviar e aplicar</button>
+                        </div>
+                        <button class="btn-small" id="btn-reset-global-cardbase">Reverter para padrão</button>
+                    </div>
+
+                    <div class="control-section mode-artwork-only">
+                        <h3>Fonte da Artwork</h3>
+                        <div class="form-group">
+                            <label>Artwork URL ou Caminho Local</label>
+                            <input type="text" id="editor-card-artwork" placeholder="URL externa ou /assets/..." />
+                            <button class="btn-small" id="btn-load-artwork">Carregar da URL</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Ou selecione arquivo local:</label>
+                            <input type="file" id="editor-card-artwork-file" accept="image/*" />
+                            <button class="btn-small" id="btn-load-artwork-file">Carregar Arquivo</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Ou escolha do diretório de assets:</label>
+                            <select id="editor-card-artwork-select">
+                                <option value="">Selecione uma imagem...</option>
+                            </select>
+                            <button class="btn-small" id="btn-load-artwork-select">Carregar Selecionada</button>
+                        </div>
+                    </div>
+
+                    <div class="control-section mode-artwork-only">
+                        <h3>Layout - Artwork (Individual)</h3>
+                        <div class="form-group">
+                            <label>Offset Left</label>
+                            <input type="number" id="artwork-offset-left" step="1" />
+                        </div>
+                        <div class="form-group">
+                            <label>Offset Top</label>
+                            <input type="number" id="artwork-offset-top" step="1" />
+                        </div>
+                        <div class="form-group">
+                            <label>Offset Right</label>
+                            <input type="number" id="artwork-offset-right" step="1" />
+                        </div>
+                        <div class="form-group">
+                            <label>Offset Bottom</label>
+                            <input type="number" id="artwork-offset-bottom" step="1" />
+                        </div>
+                        <button class="btn-small" id="btn-reset-artwork">Reset Posição</button>
+                        <button class="btn-small" id="btn-center-artwork">Centralizar</button>
+                    </div>
+
+                    <div class="control-section mode-vfx-only">
+                        <h3>Layout - Custo (Universal)</h3>
+                        <div class="form-group">
+                            <label>Offset Left</label>
+                            <input type="number" id="cost-offset-left" step="1" />
+                        </div>
+                        <div class="form-group">
+                            <label>Offset Top</label>
+                            <input type="number" id="cost-offset-top" step="1" />
+                        </div>
+                        <button class="btn-small" id="btn-reset-cost">Reset Posição</button>
+                        <button class="btn-small" id="btn-center-cost">Centralizar</button>
+                    </div>
+
+                    <div class="control-section mode-vfx-only">
+                        <h3>Layout - Ataque (Universal)</h3>
+                        <div class="form-group">
+                            <label>Offset Left</label>
+                            <input type="number" id="attack-offset-left" step="1" />
+                        </div>
+                        <div class="form-group">
+                            <label>Offset Top</label>
+                            <input type="number" id="attack-offset-top" step="1" />
+                        </div>
+                        <button class="btn-small" id="btn-reset-attack">Reset Posição</button>
+                        <button class="btn-small" id="btn-center-attack">Centralizar</button>
+                    </div>
+
+                    <div class="control-section mode-vfx-only">
+                        <h3>Layout - Defesa (Universal)</h3>
+                        <div class="form-group">
+                            <label>Offset Left</label>
+                            <input type="number" id="defense-offset-left" step="1" />
+                        </div>
+                        <div class="form-group">
+                            <label>Offset Top</label>
+                            <input type="number" id="defense-offset-top" step="1" />
+                        </div>
+                        <button class="btn-small" id="btn-reset-defense">Reset Posição</button>
+                        <button class="btn-small" id="btn-center-defense">Centralizar</button>
+                    </div>
+                    
+                    <div class="control-section mode-vfx-only">
+                        <h3>Layout - Nome (Universal)</h3>
+                        <button class="btn-small" id="btn-reset-name">Reset Posição</button>
+                        <button class="btn-small" id="btn-center-name">Centralizar</button>
+                    </div>
+                    
+                    <div class="control-section mode-vfx-only">
+                        <h3>Layout - Descrição (Universal)</h3>
+                        <button class="btn-small" id="btn-reset-description">Reset Posição</button>
+                        <button class="btn-small" id="btn-center-description">Centralizar</button>
+                    </div>
+
+                    <div class="control-actions">
+                        <button class="btn-primary mode-vfx-only" id="btn-preview-card">Preview</button>
+                        <button class="btn-primary" id="btn-save-layout">Salvar Layout</button>
+                        <button class="btn-secondary mode-artwork-only" id="btn-use-saved-layout" title="Carrega o layout salvo desta mesma carta.">Usar layout desta carta</button>
+                        <div class="layout-from-other mode-artwork-only">
+                            <label for="layout-source-card">Aplicar layout de outra carta:</label>
+                            <select id="layout-source-card">
+                                <option value="">— escolher carta —</option>
+                            </select>
+                            <button class="btn-small" id="btn-apply-layout-from-card" title="Copia as posições da carta escolhida para a carta atual.">Aplicar</button>
+                        </div>
+                        <button class="btn-primary mode-artwork-only" id="btn-update-card-image" title="Reenvia só a imagem da carta (sem bolinhas) para o servidor. Use se o cliente ainda mostrar bolinhas.">Atualizar imagem no servidor</button>
+                        <button class="btn-secondary" id="btn-reset-layout">Reset Tudo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="preview-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content preview-modal">
+            <div class="preview-header">
+                <h2>Preview da Carta</h2>
+                <button class="btn-close" id="btn-close-preview">✕</button>
+            </div>
+            <div class="preview-body">
+                <img id="preview-image" src="" alt="Card Preview" />
+            </div>
+            <div class="preview-actions">
+                <button class="btn-primary" id="btn-confirm-save">Confirmar e Salvar</button>
+                <button class="btn-secondary" id="btn-cancel-preview">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api-client.js"></script>
+    <script src="js/card-layout-manager.js"></script>
+    <script src="js/card-editor.js"></script>
+    <script src="js/booster-manager.js"></script>
+    <script src="js/monster-manager.js"></script>
+    <script src="js/quest-manager.js"></script>
     <script src="js/admin.js"></script>
 </body>
 

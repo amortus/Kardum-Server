@@ -28,8 +28,10 @@ app.use('/admin', express.static(path.join(__dirname, '../admin')));
 // API Routes
 const authRoutes = require('./routes/auth');
 const deckRoutes = require('./routes/decks');
+const userRoutes = require('./routes/users');
 app.use('/api/auth', authRoutes);
 app.use('/api/decks', deckRoutes);
+app.use('/api/users', userRoutes);
 
 // Basic routes
 app.get('/', (req, res) => {

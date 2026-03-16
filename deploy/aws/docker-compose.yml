@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  app1:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    env_file:
+      - ../../.env
+    environment:
+      PORT: 3000
+      REDIS_URL: redis://redis:6379
+      INSTANCE_ID: app1
+      MMO_CHANNEL_MAX_PLAYERS: 150
+      MMO_CHANNEL_SOFT_TARGET: 120
+      MMO_DISTRIBUTED_STATE_ENABLED: "true"
+      MMO_SHARD_AUTHORITY_ENABLED: "true"
+      MM_MATCHMAKING_REDIS_ENABLED: "true"
+      UPLOADS_DIR: /app/uploads
+    volumes:
+      - ../../uploads:/app/uploads
+    depends_on:
+      - redis
+
+  app2:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    env_file:
+      - ../../.env
+    environment:
+      PORT: 3000
+      REDIS_URL: redis://redis:6379
+      INSTANCE_ID: app2
+      MMO_CHANNEL_MAX_PLAYERS: 150
+      MMO_CHANNEL_SOFT_TARGET: 120
+      MMO_DISTRIBUTED_STATE_ENABLED: "true"
+      MMO_SHARD_AUTHORITY_ENABLED: "true"
+      MM_MATCHMAKING_REDIS_ENABLED: "true"
+      UPLOADS_DIR: /app/uploads
+    volumes:
+      - ../../uploads:/app/uploads
+    depends_on:
+      - redis
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app1
+      - app2
+
+volumes:
+  redis_data:
+

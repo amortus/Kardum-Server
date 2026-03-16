@@ -2,12 +2,36 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { createUser, getUserByUsername, getUserById } = require('../database');
+const { createUser, getUserByUsername, getUserById, dbHelpers } = require('../database');
 const { authenticateToken, JWT_SECRET } = require('../middleware/auth');
 
 const router = express.Router();
 
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+
+function mapUserPayload(user) {
+    const gender = (user.gender || 'male').toLowerCase();
+    const defaultHead = gender === 'female' ? 'head_long' : 'male_head1';
+    return {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        elo_casual: user.elo_casual,
+        elo_ranked: user.elo_ranked,
+        total_matches: user.total_matches,
+        wins: user.wins,
+        losses: user.losses,
+        created_at: user.created_at,
+        last_login: user.last_login,
+        character: {
+            gender,
+            body_id: user.body_id || 'clothes',
+            head_id: user.head_id || defaultHead,
+            character_completed: user.character_completed === 1
+        },
+        character_completed: user.character_completed === 1
+    };
+}
 
 /**
  * POST /api/auth/register
@@ -81,13 +105,9 @@ router.post('/register', async (req, res) => {
             success: true,
             data: {
                 token,
-                user: {
-                    id: user.id,
-                    username: user.username,
-                    email: user.email,
-                    elo_casual: user.elo_casual,
-                    elo_ranked: user.elo_ranked,
-                    created_at: user.created_at
+                user: mapUserPayload(user),
+                onboarding: {
+                    requires_character_setup: user.character_completed !== 1
                 }
             }
         });
@@ -135,7 +155,6 @@ router.post('/login', async (req, res) => {
         }
 
         // Atualizar último login
-        const { dbHelpers } = require('../database');
         await dbHelpers.run('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?', [user.id]);
 
         // Gerar token JWT
@@ -150,17 +169,9 @@ router.post('/login', async (req, res) => {
             success: true,
             data: {
                 token,
-                user: {
-                    id: user.id,
-                    username: user.username,
-                    email: user.email,
-                    elo_casual: user.elo_casual,
-                    elo_ranked: user.elo_ranked,
-                    total_matches: user.total_matches,
-                    wins: user.wins,
-                    losses: user.losses,
-                    created_at: user.created_at,
-                    last_login: user.last_login
+                user: mapUserPayload(user),
+                onboarding: {
+                    requires_character_setup: user.character_completed !== 1
                 }
             }
         });
@@ -190,18 +201,7 @@ router.get('/me', authenticateToken, async (req, res) => {
 
         res.json({
             success: true,
-            data: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                elo_casual: user.elo_casual,
-                elo_ranked: user.elo_ranked,
-                total_matches: user.total_matches,
-                wins: user.wins,
-                losses: user.losses,
-                created_at: user.created_at,
-                last_login: user.last_login
-            }
+            data: mapUserPayload(user)
         });
     } catch (error) {
         console.error('[Auth] Get me error:', error);
