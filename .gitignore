@@ -6,3 +6,12 @@ node_modules/
 client/assets/cards/uploads/
 admin/assets/uploads/
 uploads/
+.env
+.env.*
+!.env.example
+*.pem
+kardum-prod-update*.tar.gz
+tmp/
+*.md
+!README.md
+!readme.md
