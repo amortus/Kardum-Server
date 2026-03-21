@@ -136,7 +136,12 @@ export class CardRepository {
 
   async areCardsAvailableForUser(userId: number, cardIds: string[]): Promise<boolean> {
     if (!cardIds || cardIds.length === 0) return true;
-    const placeholders = cardIds.map(() => '?').join(',');
+    const normalizedIds = cardIds
+      .map((id) => String(id).trim())
+      .filter((id) => id.length > 0);
+    if (normalizedIds.length === 0) return true;
+    const uniqueIds = Array.from(new Set(normalizedIds));
+    const placeholders = uniqueIds.map(() => '?').join(',');
     const rows = await dbHelpers.queryAll<{ id: string }>(
       `SELECT id
        FROM cards
@@ -146,9 +151,9 @@ export class CardRepository {
            default_unlocked = 1
            OR id IN (SELECT card_id FROM user_card_unlocks WHERE user_id = ?)
          )`,
-      [...cardIds, userId]
+      [...uniqueIds, userId]
     );
-    return rows.length === cardIds.length;
+    return rows.length === uniqueIds.length;
   }
 
   async getCardsByType(type: string): Promise<Card[]> {

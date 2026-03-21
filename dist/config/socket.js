@@ -80,6 +80,28 @@ let pvpPhaseWatchdogTimer = null;
 const pendingDisconnectForfeitTimers = new Map();
 const zoneMonsterBroadcastState = new Map();
 const lastQuestPositionSyncAt = new Map();
+function parseSocketPositiveInt(value, max = 2147483647) {
+    if (value === null || value === undefined)
+        return null;
+    if (typeof value === 'bigint') {
+        const n = Number(value);
+        return Number.isFinite(n) && n >= 1 && n <= max ? Math.floor(n) : null;
+    }
+    if (typeof value === 'number') {
+        if (!Number.isFinite(value) || value < 1)
+            return null;
+        const n = Math.floor(value);
+        return n >= 1 && n <= max ? n : null;
+    }
+    if (typeof value === 'string') {
+        const t = value.trim();
+        if (!/^\d{1,12}$/.test(t))
+            return null;
+        const n = parseInt(t, 10);
+        return n >= 1 && n <= max ? n : null;
+    }
+    return null;
+}
 const MMO_PERF_PRESETS = {
     mobile: { aoiRadius: 700, deltaIntervalMs: 1400, resyncIntervalMs: 20000 },
     balanced: { aoiRadius: 1200, deltaIntervalMs: 1000, resyncIntervalMs: 15000 },
@@ -133,35 +155,49 @@ async function finalizeMatchAndBroadcast(io, payload, requestedByUserId = 0, emi
         emitError?.('winnerId is required to end match');
         return false;
     }
-    const fallbackEncounterResult = winnerId === requestedByUserId ? 'win' : 'loss';
-    const encounterFinishWithoutMatch = await monster_service_1.default.finishEncounter(matchId, fallbackEncounterResult);
     const match = match_manager_1.default.getMatch(matchId);
+    if (match?.ended) {
+        return true;
+    }
+    // Resultado do encounter é sempre do ponto de vista do jogador humano (player1 em partidas AI/PvE).
+    // Nunca usar finishEncounter antes de resolver o match: requestedByUserId === 0 ou confundir
+    // vencedor com o requester gerava 'loss' indevido e zerava progresso de quest.
+    let encounterResult;
+    if (match) {
+        encounterResult = winnerId === Number(match.player1Id) ? 'win' : 'loss';
+    }
+    else if (requestedByUserId > 0) {
+        encounterResult = winnerId === requestedByUserId ? 'win' : 'loss';
+    }
+    else {
+        encounterResult = 'loss';
+    }
+    const encounterFinish = await monster_service_1.default.finishEncounter(matchId, encounterResult);
     if (!match) {
-        if (encounterFinishWithoutMatch) {
-            if (encounterFinishWithoutMatch.monster) {
-                emitMonsterDespawnToAoiViewers(io, encounterFinishWithoutMatch.monster.zone, encounterFinishWithoutMatch.monster.spawn_uid, encounterFinishWithoutMatch.monster.next_respawn_at || 0);
+        if (encounterFinish) {
+            if (encounterFinish.monster) {
+                emitMonsterDespawnToAoiViewers(io, encounterFinish.monster.zone, encounterFinish.monster.spawn_uid, encounterFinish.monster.next_respawn_at || 0);
             }
-            emitToUser(io, encounterFinishWithoutMatch.userId, constants_1.SOCKET_EVENTS.MMO_DROP_RESULT, {
-                result: encounterFinishWithoutMatch.result,
-                drop: encounterFinishWithoutMatch.drop,
-                templateId: encounterFinishWithoutMatch.templateId
+            emitToUser(io, encounterFinish.userId, constants_1.SOCKET_EVENTS.MMO_DROP_RESULT, {
+                result: encounterFinish.result,
+                drop: encounterFinish.drop,
+                templateId: encounterFinish.templateId
             });
+            try {
+                await quest_service_1.default.onMonsterEncounterResult(encounterFinish.userId, encounterFinish.templateId, encounterFinish.result);
+                await emitQuestSnapshotForUser(io, encounterFinish.userId, userZones.get(encounterFinish.userId) || 'shadowland', constants_1.SOCKET_EVENTS.QUESTS_UPDATE);
+            }
+            catch (error) {
+                console.error('[Quests] Monster encounter progress failed (no local match):', error);
+            }
             return true;
         }
         emitError?.('Match not found');
         return false;
     }
-    if (match.ended) {
-        return true;
-    }
     const isAiMatch = match.matchType === 'ai';
     const player1Id = Number(match.player1Id);
     const player2Id = Number(match.player2Id);
-    const encounterResult = winnerId === player1Id ? 'win' : 'loss';
-    let encounterFinish = encounterFinishWithoutMatch;
-    if (!encounterFinish) {
-        encounterFinish = await monster_service_1.default.finishEncounter(matchId, encounterResult);
-    }
     const isEncounterMatch = !!encounterFinish;
     let eloUpdate = {
         player1EloChange: 0,
@@ -194,8 +230,13 @@ async function finalizeMatchAndBroadcast(io, payload, requestedByUserId = 0, emi
             drop: encounterFinish.drop,
             templateId: encounterFinish.templateId
         });
-        await quest_service_1.default.onMonsterEncounterResult(encounterFinish.userId, encounterFinish.templateId, encounterFinish.result);
-        await emitQuestSnapshotForUser(io, encounterFinish.userId, userZones.get(encounterFinish.userId) || 'shadowland', constants_1.SOCKET_EVENTS.QUESTS_UPDATE);
+        try {
+            await quest_service_1.default.onMonsterEncounterResult(encounterFinish.userId, encounterFinish.templateId, encounterFinish.result);
+            await emitQuestSnapshotForUser(io, encounterFinish.userId, userZones.get(encounterFinish.userId) || 'shadowland', constants_1.SOCKET_EVENTS.QUESTS_UPDATE);
+        }
+        catch (error) {
+            console.error('[Quests] Monster encounter progress failed:', error);
+        }
     }
     match_manager_1.default.endMatch(matchId, winnerId);
     const endData = {
@@ -361,7 +402,9 @@ async function setupSocketIO(server) {
                     socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: 'Deck not found or access denied' });
                     return;
                 }
-                const queueDeckUnlocked = await card_repository_1.default.areCardsAvailableForUser(userId, userDeck.cards || []);
+                const queueDeckUnlocked = socket.user?.isAdmin
+                    ? true
+                    : await card_repository_1.default.areCardsAvailableForUser(userId, userDeck.cards || []);
                 if (!queueDeckUnlocked) {
                     socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, {
                         message: 'Seu deck possui cartas bloqueadas para este usuario'
@@ -413,7 +456,7 @@ async function setupSocketIO(server) {
                 reconcilePlayerAoiForUser(io, userId);
                 const monsters = getAoiSnapshotForUser(zone, initialX, initialY);
                 socket.emit(constants_1.SOCKET_EVENTS.MMO_MONSTERS_SNAPSHOT, { zone, monsters });
-                const npcs = await npc_service_1.default.listZoneSpawns(zone);
+                const npcs = await npc_service_1.default.listZoneSpawns(zone, userId);
                 socket.emit(constants_1.SOCKET_EVENTS.MMO_NPCS_SNAPSHOT, { zone, npcs });
                 userVisibleMonsters.set(userId, new Set(monsters.map((monster) => monster.spawn_uid)));
                 await emitQuestSnapshotForUser(io, userId, zone, constants_1.SOCKET_EVENTS.QUESTS_SNAPSHOT);
@@ -455,7 +498,7 @@ async function setupSocketIO(server) {
                 world_state_store_1.worldStateStore.setUserZoneChannel(userId, newZoneKey);
                 const players = getZonePlayersSnapshot(newZoneKey, x, y, userId);
                 socket.emit(constants_1.SOCKET_EVENTS.MMO_PLAYERS_SNAPSHOT, { zone, zoneKey: newZoneKey, players });
-                const npcs = await npc_service_1.default.listZoneSpawns(zone);
+                const npcs = await npc_service_1.default.listZoneSpawns(zone, userId);
                 socket.emit(constants_1.SOCKET_EVENTS.MMO_NPCS_SNAPSHOT, { zone, npcs });
             }
             world_state_store_1.worldStateStore.setUserZone(userId, zone);
@@ -549,7 +592,7 @@ async function setupSocketIO(server) {
                 socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: error.message || 'Failed to engage monster' });
             }
         });
-        // Admin command: /spawn "monster name"
+        // Admin command: /spawn "template name" (NPC first, then monster fallback)
         socket.on(constants_1.SOCKET_EVENTS.MMO_COMMAND_SPAWN, async (data) => {
             try {
                 if (!socket.user?.isAdmin) {
@@ -564,13 +607,40 @@ async function setupSocketIO(server) {
                     socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: 'name is required' });
                     return;
                 }
+                try {
+                    const npcSpawn = await npc_service_1.default.spawnByTemplateName(name, zone, x, y);
+                    await emitNpcSnapshotForZone(io, zone);
+                    socket.emit(constants_1.SOCKET_EVENTS.MMO_COMMAND_RESULT, {
+                        command: 'spawn',
+                        success: true,
+                        message: `NPC criado para "${name}"`,
+                        spawn: {
+                            kind: 'npc',
+                            spawnUid: npcSpawn.spawn_uid,
+                            templateName: String(npcSpawn?.template?.name || name),
+                            templateCode: String(npcSpawn?.template?.code || ''),
+                            zone,
+                            x: Math.round(Number(npcSpawn.x || 0)),
+                            y: Math.round(Number(npcSpawn.y || 0))
+                        }
+                    });
+                    return;
+                }
+                catch (npcError) {
+                    const npcMessage = String(npcError?.message || '');
+                    const npcNotFound = npcMessage.toLowerCase().indexOf('not found') >= 0;
+                    if (!npcNotFound) {
+                        throw npcError;
+                    }
+                }
                 const spawned = await monster_service_1.default.spawnByTemplateName(name, zone, x, y);
                 emitMonsterUpdateToAoiNearby(io, zone, spawned);
                 socket.emit(constants_1.SOCKET_EVENTS.MMO_COMMAND_RESULT, {
                     command: 'spawn',
                     success: true,
-                    message: `Spawn criado para "${name}"`,
+                    message: `Monstro criado para "${name}"`,
                     spawn: {
+                        kind: 'monster',
                         spawnUid: spawned.spawn_uid,
                         templateName: spawned.template_name,
                         zone,
@@ -642,16 +712,19 @@ async function setupSocketIO(server) {
         socket.on(constants_1.SOCKET_EVENTS.QUESTS_SYNC, async () => {
             const zone = userZones.get(userId) || 'shadowland';
             await emitQuestSnapshotForUser(io, userId, zone, constants_1.SOCKET_EVENTS.QUESTS_SNAPSHOT);
+            await emitNpcSnapshotForUser(io, userId, zone);
         });
         socket.on(constants_1.SOCKET_EVENTS.QUESTS_ACCEPT, async (data) => {
             try {
-                const questId = Number(data?.questId);
-                if (!Number.isFinite(questId) || questId <= 0) {
+                const questId = parseSocketPositiveInt(data?.questId);
+                if (questId == null) {
                     socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: 'questId is required' });
                     return;
                 }
                 await quest_service_1.default.acceptQuest(userId, questId);
-                await emitQuestSnapshotForUser(io, userId, userZones.get(userId) || 'shadowland', constants_1.SOCKET_EVENTS.QUESTS_UPDATE);
+                const zone = userZones.get(userId) || 'shadowland';
+                await emitQuestSnapshotForUser(io, userId, zone, constants_1.SOCKET_EVENTS.QUESTS_UPDATE);
+                await emitNpcSnapshotForUser(io, userId, zone);
             }
             catch (error) {
                 socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: error.message || 'Failed to accept quest' });
@@ -659,13 +732,15 @@ async function setupSocketIO(server) {
         });
         socket.on(constants_1.SOCKET_EVENTS.QUESTS_ABANDON, async (data) => {
             try {
-                const questId = Number(data?.questId);
-                if (!Number.isFinite(questId) || questId <= 0) {
+                const questId = parseSocketPositiveInt(data?.questId);
+                if (questId == null) {
                     socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: 'questId is required' });
                     return;
                 }
                 await quest_service_1.default.abandonQuest(userId, questId);
-                await emitQuestSnapshotForUser(io, userId, userZones.get(userId) || 'shadowland', constants_1.SOCKET_EVENTS.QUESTS_UPDATE);
+                const zone = userZones.get(userId) || 'shadowland';
+                await emitQuestSnapshotForUser(io, userId, zone, constants_1.SOCKET_EVENTS.QUESTS_UPDATE);
+                await emitNpcSnapshotForUser(io, userId, zone);
             }
             catch (error) {
                 socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: error.message || 'Failed to abandon quest' });
@@ -673,9 +748,9 @@ async function setupSocketIO(server) {
         });
         socket.on(constants_1.SOCKET_EVENTS.QUESTS_TRACK, async (data) => {
             try {
-                const questId = Number(data?.questId);
+                const questId = parseSocketPositiveInt(data?.questId);
                 const tracked = data?.tracked !== false;
-                if (!Number.isFinite(questId) || questId <= 0) {
+                if (questId == null) {
                     socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: 'questId is required' });
                     return;
                 }
@@ -688,13 +763,20 @@ async function setupSocketIO(server) {
         });
         socket.on(constants_1.SOCKET_EVENTS.QUESTS_TURNIN, async (data) => {
             try {
-                const questId = Number(data?.questId);
-                if (!Number.isFinite(questId) || questId <= 0) {
+                const questId = parseSocketPositiveInt(data?.questId);
+                if (questId == null) {
                     socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: 'questId is required' });
                     return;
                 }
                 await quest_service_1.default.turnInQuest(userId, questId);
-                await emitQuestSnapshotForUser(io, userId, userZones.get(userId) || 'shadowland', constants_1.SOCKET_EVENTS.QUESTS_UPDATE);
+                const zone = userZones.get(userId) || 'shadowland';
+                try {
+                    await emitQuestSnapshotForUser(io, userId, zone, constants_1.SOCKET_EVENTS.QUESTS_UPDATE);
+                    await emitNpcSnapshotForUser(io, userId, zone);
+                }
+                catch (emitErr) {
+                    console.error('[Quests] post-turnin snapshot failed:', emitErr?.message || emitErr);
+                }
             }
             catch (error) {
                 socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: error.message || 'Failed to turn in quest' });
@@ -702,13 +784,15 @@ async function setupSocketIO(server) {
         });
         socket.on(constants_1.SOCKET_EVENTS.QUESTS_NPC_TALK, async (data) => {
             try {
-                const npcTemplateId = Number(data?.npcTemplateId);
-                if (!Number.isFinite(npcTemplateId) || npcTemplateId <= 0) {
+                const npcTemplateId = parseSocketPositiveInt(data?.npcTemplateId);
+                if (npcTemplateId == null) {
                     socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: 'npcTemplateId is required' });
                     return;
                 }
                 await npc_service_1.default.interactWithNpc(userId, npcTemplateId);
-                await emitQuestSnapshotForUser(io, userId, userZones.get(userId) || 'shadowland', constants_1.SOCKET_EVENTS.QUESTS_UPDATE);
+                const zone = userZones.get(userId) || 'shadowland';
+                await emitQuestSnapshotForUser(io, userId, zone, constants_1.SOCKET_EVENTS.QUESTS_UPDATE);
+                await emitNpcSnapshotForUser(io, userId, zone);
             }
             catch (error) {
                 socket.emit(constants_1.SOCKET_EVENTS.PVP_ERROR, { message: error.message || 'Failed to process NPC interaction' });
@@ -1128,6 +1212,16 @@ function emitToUser(io, userId, event, data) {
 async function emitQuestSnapshotForUser(io, userId, zone, eventName) {
     const snapshot = await quest_service_1.default.getSnapshot(userId, zone);
     emitToUser(io, userId, eventName, snapshot);
+}
+async function emitNpcSnapshotForUser(io, userId, zone) {
+    const npcs = await npc_service_1.default.listZoneSpawns(zone, userId);
+    emitToUser(io, userId, constants_1.SOCKET_EVENTS.MMO_NPCS_SNAPSHOT, { zone, npcs });
+}
+async function emitNpcSnapshotForZone(io, zone) {
+    const userEntries = Array.from(userZones.entries()).filter(([, userZone]) => String(userZone) === String(zone));
+    for (const [userId] of userEntries) {
+        await emitNpcSnapshotForUser(io, Number(userId), zone);
+    }
 }
 async function resolveIdentityByUserId(userId) {
     if (!Number.isFinite(userId) || userId <= 0)

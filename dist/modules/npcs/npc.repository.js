@@ -45,6 +45,31 @@ class NpcRepository {
             is_active: Number(row.is_active || 0) === 1 || row.is_active === true
         };
     }
+    async getTemplateByNameOrCode(nameOrCode) {
+        const normalized = String(nameOrCode || '').trim().toLowerCase();
+        if (!normalized)
+            return null;
+        const row = await database_1.default.query(`SELECT *
+       FROM npc_templates
+       WHERE LOWER(code) = ? OR LOWER(name) = ?
+       ORDER BY CASE WHEN LOWER(code) = ? THEN 0 ELSE 1 END, id ASC
+       LIMIT 1`, [normalized, normalized, normalized]);
+        if (!row)
+            return null;
+        return {
+            id: Number(row.id),
+            code: String(row.code),
+            name: String(row.name),
+            sprite_ref: row.sprite_ref == null ? null : String(row.sprite_ref),
+            frame_count: Number(row.frame_count || 6),
+            frame_cols: Number(row.frame_cols || 6),
+            frame_rows: Number(row.frame_rows || 1),
+            idle_start: Number(row.idle_start || 0),
+            idle_count: Number(row.idle_count || 6),
+            dialogue_json: row.dialogue_json == null ? null : String(row.dialogue_json),
+            is_active: Number(row.is_active || 0) === 1 || row.is_active === true
+        };
+    }
     async createTemplate(payload) {
         const result = await database_1.default.run(`INSERT INTO npc_templates
       (code, name, sprite_ref, frame_count, frame_cols, frame_rows, idle_start, idle_count, dialogue_json, is_active)

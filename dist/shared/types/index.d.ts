@@ -123,6 +123,8 @@ export interface PlayerProfile {
     level: number;
     experience: number;
     exp_to_next_level: number;
+    /** EXP já obtida no nível atual (0 .. exp_to_next_level). */
+    exp_into_level: number;
     exp_progress_percent: number;
     rank_info: RankInfo;
     elo_ranked: number;

@@ -84,6 +84,62 @@ async function normalizeQuestRewards(
   return normalized;
 }
 
+async function normalizeQuestPrerequisites(
+  prerequisitesInput: unknown
+): Promise<Array<{ prerequisite_type: string; reference_value: string; operator: string; required_count: number }>> {
+  if (!Array.isArray(prerequisitesInput)) return [];
+  const normalized: Array<{ prerequisite_type: string; reference_value: string; operator: string; required_count: number }> = [];
+  const uniqueKeys = new Set<string>();
+  for (const raw of prerequisitesInput) {
+    if (!raw || typeof raw !== 'object') continue;
+    const prerequisite = raw as Record<string, unknown>;
+    const prerequisiteType = String(prerequisite.prerequisite_type || prerequisite.type || '')
+      .trim()
+      .toUpperCase();
+    if (!prerequisiteType) continue;
+    const operator = String(prerequisite.operator || 'eq').trim() || 'eq';
+    const requiredCount = Math.max(1, Number(prerequisite.required_count || prerequisite.requiredCount || 1));
+
+    let referenceValue = '';
+    if (prerequisite.reference_value != null && String(prerequisite.reference_value).trim() !== '') {
+      referenceValue = String(prerequisite.reference_value).trim();
+    } else if (prerequisite.quest_id != null && String(prerequisite.quest_id).trim() !== '') {
+      referenceValue = String(prerequisite.quest_id).trim();
+    } else if (prerequisite.quest_code != null && String(prerequisite.quest_code).trim() !== '') {
+      referenceValue = String(prerequisite.quest_code).trim();
+    }
+    if (!referenceValue) {
+      throw new AdminValidationError(`prerequisite reference is required for type ${prerequisiteType}`);
+    }
+
+    if (prerequisiteType === 'QUEST_COMPLETED') {
+      const numericQuestId = Number(referenceValue);
+      if (Number.isFinite(numericQuestId) && numericQuestId > 0) {
+        const byId = await questRepository.getQuestDefinitionById(Math.floor(numericQuestId));
+        if (!byId) {
+          throw new AdminValidationError(`prerequisite quest not found by id: ${referenceValue}`);
+        }
+      } else {
+        const byCode = await questRepository.getQuestByCode(referenceValue);
+        if (!byCode) {
+          throw new AdminValidationError(`prerequisite quest not found by code: ${referenceValue}`);
+        }
+      }
+    }
+
+    const uniqueKey = `${prerequisiteType}:${referenceValue.toLowerCase()}:${operator.toLowerCase()}:${requiredCount}`;
+    if (uniqueKeys.has(uniqueKey)) continue;
+    uniqueKeys.add(uniqueKey);
+    normalized.push({
+      prerequisite_type: prerequisiteType,
+      reference_value: referenceValue,
+      operator,
+      required_count: requiredCount
+    });
+  }
+  return normalized;
+}
+
 // Todas as rotas requerem admin
 router.use(requireAdmin);
 
@@ -1011,17 +1067,54 @@ router.delete('/npcs/spawns/:spawnUid', async (req: Request, res: Response) => {
 });
 
 // ===== Quests =====
-router.get('/quests/definitions', async (_req: Request, res: Response) => {
+router.get('/quests/definitions', async (req: Request, res: Response) => {
   try {
-    const definitions = await questRepository.listQuestDefinitions();
+    const page = Math.max(1, Number(req.query.page || 1));
+    const limit = Math.max(1, Math.min(200, Number(req.query.limit || 50)));
+    const search = String(req.query.search || '').trim();
+    const giverNpcTemplateIdRaw = Number(req.query.giver_npc_template_id);
+    const includeInactive = String(req.query.include_inactive || '').trim().toLowerCase() === 'true';
+    const list = await questRepository.listQuestDefinitionsForAdmin({
+      page,
+      limit,
+      search,
+      giverNpcTemplateId: Number.isFinite(giverNpcTemplateIdRaw) && giverNpcTemplateIdRaw > 0 ? giverNpcTemplateIdRaw : null,
+      includeInactive
+    });
+    const result = await Promise.all(list.items.map(async (definition) => ({
+      ...definition,
+      objectives: await questRepository.listQuestObjectives(definition.id),
+      rewards: await questRepository.listQuestRewards(definition.id),
+      prerequisites: await questRepository.listQuestPrerequisites(definition.id)
+    })));
+    res.json({
+      definitions: result,
+      page: list.page,
+      limit: list.limit,
+      total: list.total
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to list quests' });
+  }
+});
+
+router.get('/npcs/:id/quests', async (req: Request, res: Response) => {
+  try {
+    const npcTemplateId = Number(req.params.id);
+    if (!Number.isFinite(npcTemplateId) || npcTemplateId <= 0) {
+      res.status(400).json({ error: 'Invalid npc template id' });
+      return;
+    }
+    const definitions = await questRepository.listQuestDefinitionsByNpcTemplate(npcTemplateId);
     const result = await Promise.all(definitions.map(async (definition) => ({
       ...definition,
       objectives: await questRepository.listQuestObjectives(definition.id),
-      rewards: await questRepository.listQuestRewards(definition.id)
+      rewards: await questRepository.listQuestRewards(definition.id),
+      prerequisites: await questRepository.listQuestPrerequisites(definition.id)
     })));
-    res.json({ definitions: result });
+    res.json({ npc_template_id: npcTemplateId, definitions: result });
   } catch (error: any) {
-    res.status(500).json({ error: error.message || 'Failed to list quests' });
+    res.status(500).json({ error: error.message || 'Failed to list NPC quests' });
   }
 });
 
@@ -1050,6 +1143,8 @@ router.post('/quests/definitions', async (req: Request, res: Response) => {
     await questRepository.replaceQuestObjectives(id, Array.isArray(payload.objectives) ? payload.objectives : []);
     const rewards = await normalizeQuestRewards(payload.rewards);
     await questRepository.replaceQuestRewards(id, rewards);
+    const prerequisites = await normalizeQuestPrerequisites(payload.prerequisites);
+    await questRepository.replaceQuestPrerequisites(id, prerequisites);
     res.status(201).json({ id });
   } catch (error: any) {
     if (error instanceof AdminValidationError) {
@@ -1087,6 +1182,10 @@ router.put('/quests/definitions/:id', async (req: Request, res: Response) => {
     if (Array.isArray(payload.rewards)) {
       const rewards = await normalizeQuestRewards(payload.rewards);
       await questRepository.replaceQuestRewards(questId, rewards);
+    }
+    if (Array.isArray(payload.prerequisites)) {
+      const prerequisites = await normalizeQuestPrerequisites(payload.prerequisites);
+      await questRepository.replaceQuestPrerequisites(questId, prerequisites);
     }
     res.json({ success: true });
   } catch (error: any) {
@@ -1157,13 +1256,6 @@ router.post('/quests/seed-initial', async (_req: Request, res: Response) => {
           required_count: 3,
           filters_json: null,
           order_index: 0
-        },
-        {
-          objective_type: 'TALK_TO_NPC',
-          target_ref: String(trader.id),
-          required_count: 1,
-          filters_json: null,
-          order_index: 1
         }
       ]);
       await questRepository.replaceQuestRewards(questId, [

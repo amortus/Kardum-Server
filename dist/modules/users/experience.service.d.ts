@@ -6,11 +6,11 @@ export interface ExpResult {
     levelsGained: number;
 }
 declare class ExperienceService {
-    /** Total EXP required to reach the given level from level 1. */
+    /** EXP acumulada mínima para estar no nível informado (início desse nível). */
     totalExpForLevel(level: number): number;
-    /** EXP needed to go from current level to next level. */
+    /** EXP necessária para sair do nível `level` rumo ao próximo (tamanho do segmento). */
     expForNextLevel(level: number): number;
-    /** Compute level and progress from a total accumulated EXP value. */
+    /** Nível e progresso a partir da EXP total acumulada (tabela 1–100). */
     computeLevel(totalExp: number): {
         level: number;
         expIntoLevel: number;
@@ -19,6 +19,11 @@ declare class ExperienceService {
     };
     /** Award EXP to a user after a match and persist to DB. */
     awardExp(userId: number, matchType: 'casual' | 'ranked' | 'ai', won: boolean): Promise<ExpResult>;
+    /**
+     * Adiciona EXP bruta em uma única gravação (recompensas de quest, etc.).
+     * Evita milhares de UPDATEs e mantém experience dentro do limite de INTEGER no Postgres.
+     */
+    addExpPoints(userId: number, rawPoints: number): Promise<ExpResult>;
 }
 declare const _default: ExperienceService;
 export default _default;

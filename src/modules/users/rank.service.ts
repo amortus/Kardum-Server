@@ -58,10 +58,8 @@ class RankService {
   }
 
   buildProfile(user: User): PlayerProfile {
-    const level = user.level ?? 1;
     const experience = user.experience ?? 0;
-
-    const { expToNext, progressPercent } = experienceService.computeLevel(experience);
+    const { level, expToNext, progressPercent, expIntoLevel } = experienceService.computeLevel(experience);
 
     const rank_info = this.getRankInfo(user.elo_ranked ?? 1000);
 
@@ -83,6 +81,7 @@ class RankService {
       level,
       experience,
       exp_to_next_level: expToNext,
+      exp_into_level: expIntoLevel,
       exp_progress_percent: progressPercent,
       rank_info,
       elo_ranked: user.elo_ranked ?? 1000,

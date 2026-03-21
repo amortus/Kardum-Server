@@ -2,9 +2,18 @@
 
 import { PlayerRank } from '../types';
 
+export {
+  MAX_LEVEL,
+  LEVEL_UP_EXP_REQUIREMENTS,
+  LEVEL_CUMULATIVE_MIN_EXP,
+  expRequiredToAdvanceFromLevel,
+  totalExpRequiredForLevel
+} from './levelExperience';
+
+/** @deprecated Curva linear antiga; níveis reais em levelExperience.ts */
 export const LEVEL_BASE_EXP = 100;
+/** @deprecated Curva linear antiga; níveis reais em levelExperience.ts */
 export const LEVEL_EXP_INCREMENT = 50;
-export const MAX_LEVEL = 100;
 
 export const EXP_REWARDS = {
   casual: { win: 80, loss: 30 },

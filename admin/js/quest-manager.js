@@ -3,7 +3,15 @@ class QuestManager {
     this.npcTemplates = [];
     this.npcSpawns = [];
     this.questDefinitions = [];
+    this.npcQuestDefinitions = [];
     this.cards = [];
+    this.selectedNpcTemplateId = null;
+    this.questSearch = '';
+    this.questPage = 1;
+    this.questLimit = 50;
+    this.questTotal = 0;
+    this.prerequisiteDraft = [];
+    this.prerequisiteCandidates = [];
     this.bindEvents();
   }
 
@@ -28,22 +36,99 @@ class QuestManager {
       event.preventDefault();
       this.saveQuestDefinition();
     });
+    document.getElementById('quest-search')?.addEventListener('input', (event) => {
+      this.questSearch = String(event?.target?.value || '').trim();
+      this.questPage = 1;
+      this.loadData();
+    });
+    document.getElementById('quest-search-limit')?.addEventListener('change', (event) => {
+      this.questLimit = Math.max(1, Number(event?.target?.value || 50));
+      this.questPage = 1;
+      this.loadData();
+    });
+    document.getElementById('quest-search-npc')?.addEventListener('change', (event) => {
+      const npcTemplateId = Number(event?.target?.value || 0);
+      this.selectedNpcTemplateId = Number.isFinite(npcTemplateId) && npcTemplateId > 0 ? npcTemplateId : null;
+      this.questPage = 1;
+      this.loadData();
+    });
+    document.getElementById('npc-chain-list')?.addEventListener('click', (event) => {
+      const target = event.target.closest?.('.npc-chain-item');
+      if (!target) return;
+      const npcTemplateId = Number(target.dataset.npcId || 0);
+      if (!Number.isFinite(npcTemplateId) || npcTemplateId <= 0) return;
+      this.selectedNpcTemplateId = npcTemplateId;
+      const npcSearchSelect = document.getElementById('quest-search-npc');
+      if (npcSearchSelect) {
+        npcSearchSelect.value = String(npcTemplateId);
+      }
+      this.questPage = 1;
+      this.loadData();
+    });
+    document.getElementById('quest-pagination')?.addEventListener('click', (event) => {
+      const target = event.target.closest?.('button[data-page]');
+      if (!target) return;
+      const nextPage = Number(target.dataset.page || 0);
+      if (!Number.isFinite(nextPage) || nextPage <= 0 || nextPage === this.questPage) return;
+      this.questPage = nextPage;
+      this.loadData();
+    });
+    document.getElementById('quest-prereq-search')?.addEventListener('input', () => {
+      this.loadPrerequisiteCandidates();
+    });
+    document.getElementById('btn-add-quest-prereq')?.addEventListener('click', () => {
+      this.addSelectedPrerequisiteFromPicker();
+    });
+    document.getElementById('quest-prereq-selected')?.addEventListener('click', (event) => {
+      const target = event.target.closest?.('button[data-prereq-ref]');
+      if (!target) return;
+      const ref = String(target.dataset.prereqRef || '').trim();
+      if (ref === '') return;
+      this.prerequisiteDraft = this.prerequisiteDraft.filter((item) => String(item.reference_value || '').trim() !== ref);
+      this.renderPrerequisiteDraft();
+    });
   }
 
   async loadData() {
     const [templatesRes, spawnsRes, questsRes, cardsRes] = await Promise.all([
       apiClient.getNpcTemplates(),
       apiClient.getNpcSpawns('shadowland'),
-      apiClient.getQuestDefinitions(),
+      apiClient.getQuestDefinitions({
+        page: this.questPage,
+        limit: this.questLimit,
+        search: this.questSearch,
+        giver_npc_template_id: this.selectedNpcTemplateId || '',
+        include_inactive: true
+      }),
       apiClient.getCards()
     ]);
     this.npcTemplates = templatesRes.templates || [];
     this.npcSpawns = spawnsRes.spawns || [];
     this.questDefinitions = questsRes.definitions || [];
+    this.questTotal = Number(questsRes.total || this.questDefinitions.length || 0);
+    this.questPage = Math.max(1, Number(questsRes.page || this.questPage || 1));
     this.cards = cardsRes.cards || [];
+    if (!this.selectedNpcTemplateId && this.npcTemplates.length > 0) {
+      this.selectedNpcTemplateId = Number(this.npcTemplates[0].id);
+    }
+    await this.loadNpcQuestDefinitions();
     this.render();
     this.populateTemplateSelects();
     this.populateRewardCardOptions();
+  }
+
+  async loadNpcQuestDefinitions() {
+    if (!this.selectedNpcTemplateId) {
+      this.npcQuestDefinitions = [];
+      return;
+    }
+    try {
+      const npcQuestRes = await apiClient.getNpcQuests(this.selectedNpcTemplateId);
+      this.npcQuestDefinitions = npcQuestRes.definitions || [];
+    } catch (error) {
+      console.error('Failed to load npc quests', error);
+      this.npcQuestDefinitions = [];
+    }
   }
 
   render() {
@@ -90,6 +175,64 @@ class QuestManager {
         </tr>
       `).join('');
     }
+    this.renderNpcChainNavigator();
+    this.renderNpcQuestChain();
+    this.renderQuestPagination();
+  }
+
+  renderNpcChainNavigator() {
+    const list = document.getElementById('npc-chain-list');
+    if (!list) return;
+    list.innerHTML = this.npcTemplates.map((npc) => {
+      const isActive = Number(this.selectedNpcTemplateId || 0) === Number(npc.id);
+      return `
+        <div class="npc-chain-item ${isActive ? 'active' : ''}" data-npc-id="${npc.id}">
+          <div><strong>${npc.name}</strong></div>
+          <div class="npc-chain-meta">${npc.code} (#${npc.id})</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  renderNpcQuestChain() {
+    const tbody = document.getElementById('npc-quest-chain-list');
+    if (!tbody) return;
+    if (!this.selectedNpcTemplateId) {
+      tbody.innerHTML = '<tr><td colspan="6">Selecione um NPC.</td></tr>';
+      return;
+    }
+    if (!Array.isArray(this.npcQuestDefinitions) || this.npcQuestDefinitions.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6">Nenhuma quest vinculada a este NPC.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = this.npcQuestDefinitions.map((quest) => {
+      const prerequisitesCount = Array.isArray(quest.prerequisites) ? quest.prerequisites.length : 0;
+      return `
+        <tr>
+          <td>${quest.id}</td>
+          <td>${quest.code}</td>
+          <td>${quest.title}</td>
+          <td>${prerequisitesCount}</td>
+          <td>${quest.is_active ? 'Ativa' : 'Inativa'}</td>
+          <td><button class="btn-edit" onclick="questManager.editQuestDefinition(${quest.id})">Editar</button></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  renderQuestPagination() {
+    const container = document.getElementById('quest-pagination');
+    if (!container) return;
+    const totalPages = Math.max(1, Math.ceil(Number(this.questTotal || 0) / Number(this.questLimit || 1)));
+    const prevPage = Math.max(1, this.questPage - 1);
+    const nextPage = Math.min(totalPages, this.questPage + 1);
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="btn-secondary" data-page="${prevPage}" ${this.questPage <= 1 ? 'disabled' : ''}>Anterior</button>
+        <span>Página ${this.questPage} de ${totalPages} (${this.questTotal} quests)</span>
+        <button class="btn-secondary" data-page="${nextPage}" ${this.questPage >= totalPages ? 'disabled' : ''}>Próxima</button>
+      </div>
+    `;
   }
 
   populateTemplateSelects() {
@@ -103,6 +246,16 @@ class QuestManager {
         .map((npc) => `<option value="${npc.id}">${npc.name} (#${npc.id})</option>`)
         .join('');
       if (previous) select.value = previous;
+    }
+    const npcSearchSelect = document.getElementById('quest-search-npc');
+    if (npcSearchSelect) {
+      const selectedValue = this.selectedNpcTemplateId ? String(this.selectedNpcTemplateId) : '';
+      npcSearchSelect.innerHTML = '<option value="">Todos os NPCs</option>' + this.npcTemplates
+        .map((npc) => `<option value="${npc.id}">${npc.name} (#${npc.id})</option>`)
+        .join('');
+      if (selectedValue !== '') {
+        npcSearchSelect.value = selectedValue;
+      }
     }
   }
 
@@ -159,6 +312,10 @@ class QuestManager {
         order_index: 0
       }
     ], null, 2);
+    this.prerequisiteDraft = this.normalizePrerequisites(definition?.prerequisites || []);
+    form.elements.prerequisites_json.value = JSON.stringify(this.prerequisiteDraft, null, 2);
+    this.renderPrerequisiteDraft();
+    this.loadPrerequisiteCandidates();
     const rewards = Array.isArray(definition?.rewards) ? definition.rewards : [];
     const expReward = rewards.find((reward) => String(reward.reward_type || '').toUpperCase() === 'EXP');
     const expMeta = this.tryParseMetadata(expReward?.metadata_json);
@@ -233,6 +390,7 @@ class QuestManager {
   async saveQuestDefinition() {
     const form = document.getElementById('quest-definition-form');
     if (!form) return;
+    this.syncPrerequisitesJsonField();
     const rewards = this.buildQuestRewardsPayload(form);
     const payload = {
       code: String(form.elements.code.value || '').trim(),
@@ -246,6 +404,7 @@ class QuestManager {
       objective_logic: String(form.elements.objective_logic.value || 'all'),
       is_active: !!form.elements.is_active.checked,
       objectives: this.tryParseJson(form.elements.objectives_json.value, []),
+      prerequisites: this.tryParseJson(form.elements.prerequisites_json.value, []),
       rewards
     };
     if (form.elements.id.value) {
@@ -255,6 +414,101 @@ class QuestManager {
     }
     this.hideModal('quest-definition-modal');
     await this.loadData();
+  }
+
+  normalizePrerequisites(rawList) {
+    if (!Array.isArray(rawList)) return [];
+    const normalized = [];
+    const unique = new Set();
+    for (const raw of rawList) {
+      if (!raw || typeof raw !== 'object') continue;
+      const prerequisiteType = String(raw.prerequisite_type || raw.type || 'QUEST_COMPLETED').trim().toUpperCase();
+      const referenceValue = String(raw.reference_value || raw.quest_id || raw.quest_code || '').trim();
+      if (!referenceValue) continue;
+      const key = `${prerequisiteType}:${referenceValue.toLowerCase()}`;
+      if (unique.has(key)) continue;
+      unique.add(key);
+      normalized.push({
+        prerequisite_type: prerequisiteType,
+        reference_value: referenceValue,
+        operator: String(raw.operator || 'eq'),
+        required_count: Math.max(1, Number(raw.required_count || 1))
+      });
+    }
+    return normalized;
+  }
+
+  syncPrerequisitesJsonField() {
+    const form = document.getElementById('quest-definition-form');
+    if (!form) return;
+    form.elements.prerequisites_json.value = JSON.stringify(this.prerequisiteDraft, null, 2);
+  }
+
+  renderPrerequisiteDraft() {
+    const container = document.getElementById('quest-prereq-selected');
+    if (!container) return;
+    if (!Array.isArray(this.prerequisiteDraft) || this.prerequisiteDraft.length === 0) {
+      container.innerHTML = '<small>Nenhum pré-requisito configurado.</small>';
+      this.syncPrerequisitesJsonField();
+      return;
+    }
+    container.innerHTML = this.prerequisiteDraft.map((item) => `
+      <span class="quest-prereq-pill">
+        ${item.reference_value}
+        <button type="button" data-prereq-ref="${item.reference_value}" title="Remover">✕</button>
+      </span>
+    `).join('');
+    this.syncPrerequisitesJsonField();
+  }
+
+  async loadPrerequisiteCandidates() {
+    const searchInput = document.getElementById('quest-prereq-search');
+    const search = String(searchInput?.value || '').trim();
+    try {
+      const result = await apiClient.getQuestDefinitions({
+        page: 1,
+        limit: 50,
+        search,
+        include_inactive: true
+      });
+      this.prerequisiteCandidates = Array.isArray(result.definitions) ? result.definitions : [];
+    } catch (error) {
+      console.error('Failed to load prerequisite candidates', error);
+      this.prerequisiteCandidates = [];
+    }
+    this.renderPrerequisiteCandidateOptions();
+  }
+
+  renderPrerequisiteCandidateOptions() {
+    const select = document.getElementById('quest-prereq-select');
+    if (!select) return;
+    const form = document.getElementById('quest-definition-form');
+    const currentQuestId = Number(form?.elements?.id?.value || 0);
+    const candidates = (this.prerequisiteCandidates || []).filter((quest) => Number(quest.id) !== currentQuestId);
+    select.innerHTML = candidates
+      .map((quest) => `<option value="${quest.code}">${quest.title} (${quest.code})</option>`)
+      .join('');
+  }
+
+  addSelectedPrerequisiteFromPicker() {
+    const select = document.getElementById('quest-prereq-select');
+    if (!select) return;
+    const selectedOption = select.options[select.selectedIndex];
+    if (!selectedOption) return;
+    const referenceValue = String(selectedOption.value || '').trim();
+    if (referenceValue === '') return;
+    const exists = this.prerequisiteDraft.some(
+      (item) => String(item.prerequisite_type || '').toUpperCase() === 'QUEST_COMPLETED'
+        && String(item.reference_value || '').trim().toLowerCase() === referenceValue.toLowerCase()
+    );
+    if (exists) return;
+    this.prerequisiteDraft.push({
+      prerequisite_type: 'QUEST_COMPLETED',
+      reference_value: referenceValue,
+      operator: 'eq',
+      required_count: 1
+    });
+    this.renderPrerequisiteDraft();
   }
 
   editNpcTemplate(id) {
@@ -270,7 +524,8 @@ class QuestManager {
   }
 
   editQuestDefinition(id) {
-    const definition = this.questDefinitions.find((item) => Number(item.id) === Number(id));
+    const definition = this.questDefinitions.find((item) => Number(item.id) === Number(id))
+      || this.npcQuestDefinitions.find((item) => Number(item.id) === Number(id));
     if (!definition) return;
     this.showQuestModal(definition);
   }

@@ -267,8 +267,14 @@ class AdminAPI {
   }
 
   // Quests
-  async getQuestDefinitions() {
-    return this.request('/admin/quests/definitions');
+  async getQuestDefinitions(filters = {}) {
+    const params = new URLSearchParams();
+    Object.entries(filters || {}).forEach(([key, value]) => {
+      if (value === undefined || value === null || String(value).trim() === '') return;
+      params.set(key, String(value));
+    });
+    const suffix = params.toString() ? `?${params.toString()}` : '';
+    return this.request(`/admin/quests/definitions${suffix}`);
   }
 
   async createQuestDefinition(payload) {
@@ -277,6 +283,10 @@ class AdminAPI {
 
   async updateQuestDefinition(id, payload) {
     return this.request(`/admin/quests/definitions/${id}`, { method: 'PUT', body: payload });
+  }
+
+  async getNpcQuests(npcTemplateId) {
+    return this.request(`/admin/npcs/${npcTemplateId}/quests`);
   }
 
   async seedInitialNpcQuest() {

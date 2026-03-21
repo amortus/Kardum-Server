@@ -94,7 +94,13 @@ router.post('/generate-random', async (req, res) => {
             collection_id: collectionId,
             user_id: req.userId
         });
-        const pool = cards.filter((card) => card.type !== 'general').map((card) => card.id);
+        let pool = cards.filter((card) => card.type !== 'general').map((card) => card.id);
+        if (pool.length < 30) {
+            // Fallback de onboarding: se o usuário novo não tiver cartas suficientes desbloqueadas,
+            // monta o deck com cartas ativas e desbloqueia as escolhidas para ele.
+            const allCards = await card_repository_1.default.getAllCards();
+            pool = allCards.filter((card) => card.type !== 'general').map((card) => card.id);
+        }
         if (pool.length < 30) {
             res.status(400).json({ error: 'Not enough cards to generate a deck' });
             return;
@@ -105,6 +111,12 @@ router.post('/generate-random', async (req, res) => {
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
         const deckCards = shuffled.slice(0, 35);
+        const user = await user_repository_1.default.getUserById(req.userId);
+        if (!user?.is_admin) {
+            for (const cardId of deckCards) {
+                await card_repository_1.default.unlockCardForUser(req.userId, cardId, 'starter_deck');
+            }
+        }
         const deckId = await deck_repository_1.default.createDeck(req.userId, {
             name: deckName,
             cards: deckCards

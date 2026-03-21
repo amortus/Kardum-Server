@@ -274,6 +274,34 @@
                     </div>
                 </div>
 
+                <div class="search-bar">
+                    <input type="text" id="quest-search" placeholder="Buscar quest por code/titulo/descricao...">
+                    <select id="quest-search-npc">
+                        <option value="">Todos os NPCs</option>
+                    </select>
+                    <select id="quest-search-limit">
+                        <option value="25">25 / página</option>
+                        <option value="50" selected>50 / página</option>
+                        <option value="100">100 / página</option>
+                    </select>
+                </div>
+
+                <div class="quests-npc-layout">
+                    <div class="quests-npc-sidebar">
+                        <h3>NPCs (navegação primária)</h3>
+                        <div id="npc-chain-list" class="npc-chain-list"></div>
+                    </div>
+                    <div class="quests-npc-main">
+                        <h3>Quests do NPC selecionado</h3>
+                        <table>
+                            <thead>
+                                <tr><th>ID</th><th>Code</th><th>Título</th><th>Pré-requisitos</th><th>Status</th><th>Ações</th></tr>
+                            </thead>
+                            <tbody id="npc-quest-chain-list"></tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <h3>NPC Templates</h3>
                 <table>
                     <thead>
@@ -297,6 +325,7 @@
                     </thead>
                     <tbody id="quest-definitions-list"></tbody>
                 </table>
+                <div id="quest-pagination" style="margin-top:10px;color:#94a3b8"></div>
             </div>
 
             <div id="npc-template-modal" class="modal hidden">
@@ -375,6 +404,17 @@
                             <div class="form-group"><label>Auto Track</label><input type="checkbox" name="auto_track" checked></div>
                             <div class="form-group"><label>Ativa</label><input type="checkbox" name="is_active" checked></div>
                             <div class="form-group full-width"><label>Objectives JSON</label><textarea name="objectives_json" rows="8"></textarea></div>
+                            <div class="form-group full-width">
+                                <label>Prerequisites JSON (chain quest)</label>
+                                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+                                    <input type="text" id="quest-prereq-search" placeholder="Buscar quest para adicionar como pré-requisito...">
+                                    <button type="button" class="btn-secondary" id="btn-add-quest-prereq">Adicionar selecionada</button>
+                                </div>
+                                <select id="quest-prereq-select" size="6"></select>
+                                <div id="quest-prereq-selected" style="margin-top:8px"></div>
+                                <textarea name="prerequisites_json" rows="6"></textarea>
+                                <small>Exemplo: [{"prerequisite_type":"QUEST_COMPLETED","reference_value":"duelista_iniciante_trial"}]</small>
+                            </div>
                             <div class="form-group"><label>Reward EXP</label><input type="number" name="reward_exp_amount" min="0" value="3"></div>
                             <div class="form-group"><label>Match Type EXP</label>
                                 <select name="reward_exp_match_type">

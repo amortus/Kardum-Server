@@ -112,7 +112,13 @@ class CardRepository {
     async areCardsAvailableForUser(userId, cardIds) {
         if (!cardIds || cardIds.length === 0)
             return true;
-        const placeholders = cardIds.map(() => '?').join(',');
+        const normalizedIds = cardIds
+            .map((id) => String(id).trim())
+            .filter((id) => id.length > 0);
+        if (normalizedIds.length === 0)
+            return true;
+        const uniqueIds = Array.from(new Set(normalizedIds));
+        const placeholders = uniqueIds.map(() => '?').join(',');
         const rows = await database_1.default.queryAll(`SELECT id
        FROM cards
        WHERE id IN (${placeholders})
@@ -120,8 +126,8 @@ class CardRepository {
          AND (
            default_unlocked = 1
            OR id IN (SELECT card_id FROM user_card_unlocks WHERE user_id = ?)
-         )`, [...cardIds, userId]);
-        return rows.length === cardIds.length;
+         )`, [...uniqueIds, userId]);
+        return rows.length === uniqueIds.length;
     }
     async getCardsByType(type) {
         const cards = await database_1.default.queryAll('SELECT * FROM cards WHERE type = ? AND is_active = 1', [type]);

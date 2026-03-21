@@ -1,11 +1,18 @@
 "use strict";
 // Constantes do jogo Kardum
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.API_ROUTES = exports.SOCKET_EVENTS = exports.GAME_CONSTANTS = exports.RANK_TIERS = exports.EXP_REWARDS = exports.MAX_LEVEL = exports.LEVEL_EXP_INCREMENT = exports.LEVEL_BASE_EXP = void 0;
+exports.API_ROUTES = exports.SOCKET_EVENTS = exports.GAME_CONSTANTS = exports.RANK_TIERS = exports.EXP_REWARDS = exports.LEVEL_EXP_INCREMENT = exports.LEVEL_BASE_EXP = exports.totalExpRequiredForLevel = exports.expRequiredToAdvanceFromLevel = exports.LEVEL_CUMULATIVE_MIN_EXP = exports.LEVEL_UP_EXP_REQUIREMENTS = exports.MAX_LEVEL = void 0;
 const types_1 = require("../types");
+var levelExperience_1 = require("./levelExperience");
+Object.defineProperty(exports, "MAX_LEVEL", { enumerable: true, get: function () { return levelExperience_1.MAX_LEVEL; } });
+Object.defineProperty(exports, "LEVEL_UP_EXP_REQUIREMENTS", { enumerable: true, get: function () { return levelExperience_1.LEVEL_UP_EXP_REQUIREMENTS; } });
+Object.defineProperty(exports, "LEVEL_CUMULATIVE_MIN_EXP", { enumerable: true, get: function () { return levelExperience_1.LEVEL_CUMULATIVE_MIN_EXP; } });
+Object.defineProperty(exports, "expRequiredToAdvanceFromLevel", { enumerable: true, get: function () { return levelExperience_1.expRequiredToAdvanceFromLevel; } });
+Object.defineProperty(exports, "totalExpRequiredForLevel", { enumerable: true, get: function () { return levelExperience_1.totalExpRequiredForLevel; } });
+/** @deprecated Curva linear antiga; níveis reais em levelExperience.ts */
 exports.LEVEL_BASE_EXP = 100;
+/** @deprecated Curva linear antiga; níveis reais em levelExperience.ts */
 exports.LEVEL_EXP_INCREMENT = 50;
-exports.MAX_LEVEL = 100;
 exports.EXP_REWARDS = {
     casual: { win: 80, loss: 30 },
     ranked: { win: 120, loss: 50 },

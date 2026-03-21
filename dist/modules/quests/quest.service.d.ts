@@ -34,6 +34,10 @@ declare class QuestService {
     onPvpMatchResult(userId: number, won: boolean, matchId: number): Promise<void>;
     onPlayerPosition(userId: number, zone: string, x: number, y: number): Promise<void>;
     private applyProgressEvent;
+    private normObjectiveRef;
+    /** Completa objetivo "falar com NPC" do mesmo template de entrega quando os demais já estão OK (evita segunda ida ao NPC só para marcar o objetivo). */
+    private fillTurninNpcTalkIfOthersComplete;
+    private refMatchesNpcTemplateId;
     private objectiveMatchesEvent;
     private computeQuestCompletion;
     private buildObjectiveProgress;
@@ -41,7 +45,10 @@ declare class QuestService {
     private parseFilters;
     private buildRewards;
     private parseRewardMetadata;
+    private safeRewardIterations;
     private applyRewards;
+    private areQuestPrerequisitesMet;
+    private resolveQuestIdFromPrerequisiteReference;
 }
 declare const _default: QuestService;
 export default _default;

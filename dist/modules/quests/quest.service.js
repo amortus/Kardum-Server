@@ -5,24 +5,47 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const card_repository_1 = __importDefault(require("../cards/card.repository"));
 const experience_service_1 = __importDefault(require("../users/experience.service"));
+const constants_1 = require("../../shared/constants");
 const user_repository_1 = __importDefault(require("../users/user.repository"));
 const quest_repository_1 = __importDefault(require("./quest.repository"));
 class QuestService {
     async getSnapshot(userId, zoneHint = 'shadowland') {
-        const [definitions, userQuests, trackedIds] = await Promise.all([
+        const [definitions, userQuests, trackedIds, profile] = await Promise.all([
             quest_repository_1.default.listQuestDefinitions(),
             quest_repository_1.default.listUserQuests(userId),
-            quest_repository_1.default.listTrackedQuestIds(userId)
+            quest_repository_1.default.listTrackedQuestIds(userId),
+            user_repository_1.default.getUserById(userId)
         ]);
+        const playerLevel = Math.max(1, Number(profile?.level || 1));
         const trackedSet = new Set(trackedIds.map((id) => Number(id)));
         const userQuestByQuestId = new Map();
         userQuests.forEach((uq) => userQuestByQuestId.set(Number(uq.quest_id), uq));
+        const definitionByCode = new Map();
+        definitions.forEach((definition) => {
+            definitionByCode.set(String(definition.code || '').trim().toLowerCase(), definition);
+        });
+        const prerequisitesRows = await quest_repository_1.default.listQuestPrerequisitesByQuestIds(definitions.map((definition) => definition.id));
+        const prerequisitesByQuestId = new Map();
+        for (const row of prerequisitesRows) {
+            const current = prerequisitesByQuestId.get(row.quest_id) || [];
+            current.push(row);
+            prerequisitesByQuestId.set(row.quest_id, current);
+        }
+        const prerequisiteResolveCache = new Map();
         const activeQuests = [];
         const availableQuests = [];
         const worldMarkers = [];
         for (const definition of definitions) {
             const userQuest = userQuestByQuestId.get(definition.id);
             if (!userQuest || ['abandoned', 'failed', 'expired'].includes(userQuest.state)) {
+                if (playerLevel < Number(definition.min_level || 1)) {
+                    continue;
+                }
+                const prerequisites = prerequisitesByQuestId.get(definition.id) || [];
+                const prerequisitesMet = await this.areQuestPrerequisitesMet(userQuestByQuestId, prerequisites, definitionByCode, prerequisiteResolveCache);
+                if (!prerequisitesMet) {
+                    continue;
+                }
                 availableQuests.push({
                     questId: definition.id,
                     code: definition.code,
@@ -45,6 +68,8 @@ class QuestService {
                 code: definition.code,
                 title: definition.title,
                 description: definition.description,
+                giverNpcTemplateId: definition.giver_npc_template_id,
+                turnInNpcTemplateId: definition.turnin_npc_template_id,
                 state: userQuest.state,
                 tracked: trackedSet.has(definition.id),
                 objectives,
@@ -86,6 +111,21 @@ class QuestService {
         if ((profile.level || 1) < definition.min_level) {
             throw new Error('Player level is too low for this quest');
         }
+        const [userQuests, prerequisites] = await Promise.all([
+            quest_repository_1.default.listUserQuests(userId),
+            quest_repository_1.default.listQuestPrerequisites(questId)
+        ]);
+        const userQuestByQuestId = new Map();
+        userQuests.forEach((uq) => userQuestByQuestId.set(Number(uq.quest_id), uq));
+        const definitions = await quest_repository_1.default.listQuestDefinitions();
+        const definitionByCode = new Map();
+        definitions.forEach((entry) => {
+            definitionByCode.set(String(entry.code || '').trim().toLowerCase(), entry);
+        });
+        const prerequisitesMet = await this.areQuestPrerequisitesMet(userQuestByQuestId, prerequisites, definitionByCode, new Map());
+        if (!prerequisitesMet) {
+            throw new Error('Quest prerequisites are not met');
+        }
         const existing = await quest_repository_1.default.getUserQuestByUserAndQuest(userId, questId);
         if (!existing) {
             await quest_repository_1.default.createUserQuest(userId, questId, 'accepted');
@@ -94,7 +134,8 @@ class QuestService {
             throw new Error('Quest already completed');
         }
         else if (existing.state === 'abandoned' || existing.state === 'failed' || existing.state === 'expired') {
-            await quest_repository_1.default.updateUserQuestState(existing.id, 'accepted');
+            await quest_repository_1.default.clearUserQuestProgressAndLedger(existing.id, userId, questId);
+            await quest_repository_1.default.resetUserQuestRowToFreshAccepted(existing.id);
         }
         if (definition.auto_track) {
             await quest_repository_1.default.trackQuest(userId, questId);
@@ -104,6 +145,9 @@ class QuestService {
         const existing = await quest_repository_1.default.getUserQuestByUserAndQuest(userId, questId);
         if (!existing)
             throw new Error('Quest not found in player log');
+        if (existing.state === 'completed')
+            throw new Error('Cannot abandon a completed quest');
+        await quest_repository_1.default.clearUserQuestProgressAndLedger(existing.id, userId, questId);
         await quest_repository_1.default.updateUserQuestState(existing.id, 'abandoned');
         await quest_repository_1.default.clearTrackingForQuest(userId, questId);
     }
@@ -142,10 +186,22 @@ class QuestService {
     async onMonsterEncounterResult(userId, templateId, result) {
         if (result !== 'win')
             return;
-        const templateName = await quest_repository_1.default.getMonsterTemplateNameById(templateId);
+        const templateIdentity = await quest_repository_1.default.getMonsterTemplateIdentityById(templateId);
+        const targetTokens = [String(templateId)];
+        if (templateIdentity) {
+            if (templateIdentity.code)
+                targetTokens.push(templateIdentity.code);
+            if (templateIdentity.name)
+                targetTokens.push(templateIdentity.name);
+        }
+        else {
+            const templateName = await quest_repository_1.default.getMonsterTemplateNameById(templateId);
+            if (templateName)
+                targetTokens.push(templateName);
+        }
         await this.applyProgressEvent(userId, {
             type: 'WIN_DUEL_VS_MONSTER_TEMPLATE',
-            targetRef: templateName || String(templateId),
+            targetRef: targetTokens.join('|'),
             eventKey: `monster_win:${templateId}:${Date.now()}`
         });
     }
@@ -194,6 +250,9 @@ class QuestService {
                 await quest_repository_1.default.upsertObjectiveProgress(userQuest.id, objective.id, nextCount, nextCount >= objective.required_count, event.eventKey);
                 changed = true;
             }
+            const talkAuto = await this.fillTurninNpcTalkIfOthersComplete(definition, objectives, progressByObjectiveId, userQuest.id);
+            if (talkAuto)
+                changed = true;
             if (!changed)
                 continue;
             const completion = this.computeQuestCompletion(objectives, progressByObjectiveId, definition.objective_logic);
@@ -205,8 +264,45 @@ class QuestService {
             }
         }
     }
+    normObjectiveRef(value) {
+        return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    }
+    /** Completa objetivo "falar com NPC" do mesmo template de entrega quando os demais já estão OK (evita segunda ida ao NPC só para marcar o objetivo). */
+    async fillTurninNpcTalkIfOthersComplete(definition, objectives, progressByObjectiveId, userQuestId) {
+        const turninId = definition.turnin_npc_template_id;
+        if (turninId == null || turninId <= 0)
+            return false;
+        const talkObjectives = objectives.filter((o) => o.objective_type === 'TALK_TO_NPC' && this.refMatchesNpcTemplateId(String(o.target_ref || ''), turninId));
+        if (talkObjectives.length === 0)
+            return false;
+        const talkIds = new Set(talkObjectives.map((o) => o.id));
+        const others = objectives.filter((o) => !talkIds.has(o.id));
+        const othersDone = others.every((o) => (progressByObjectiveId.get(o.id) || 0) >= o.required_count);
+        if (!othersDone)
+            return false;
+        let any = false;
+        for (const o of talkObjectives) {
+            const cur = progressByObjectiveId.get(o.id) || 0;
+            if (cur >= o.required_count)
+                continue;
+            progressByObjectiveId.set(o.id, o.required_count);
+            await quest_repository_1.default.upsertObjectiveProgress(userQuestId, o.id, o.required_count, true, 'auto_turnin_npc_talk');
+            any = true;
+        }
+        return any;
+    }
+    refMatchesNpcTemplateId(targetRef, npcTemplateId) {
+        const tr = this.normObjectiveRef(targetRef);
+        const idStr = String(npcTemplateId);
+        if (tr === this.normObjectiveRef(idStr))
+            return true;
+        const tn = Number(tr);
+        const idn = Number(idStr);
+        return Number.isFinite(tn) && Number.isFinite(idn) && tn === idn;
+    }
     objectiveMatchesEvent(objective, event) {
-        const targetRef = String(objective.target_ref || '').trim().toLowerCase();
+        const normRef = (value) => this.normObjectiveRef(value);
+        const targetRef = normRef(String(objective.target_ref || ''));
         if (event.type === 'VISIT_LOCATION') {
             if (!event.zone || event.x == null || event.y == null)
                 return false;
@@ -224,7 +320,7 @@ class QuestService {
             const radius = Number(filters.radius || 90);
             return distanceSq <= radius * radius;
         }
-        const incomingRef = String(event.targetRef || '').trim().toLowerCase();
+        const incomingRef = normRef(String(event.targetRef || ''));
         if (targetRef === '')
             return true;
         if (targetRef === incomingRef)
@@ -314,12 +410,29 @@ class QuestService {
     }
     async buildRewards(questId) {
         const rewards = await quest_repository_1.default.listQuestRewards(questId);
-        return rewards.map((reward) => ({
-            type: reward.reward_type,
-            ref: reward.reward_ref,
-            amount: reward.amount,
-            metadata: this.parseRewardMetadata(reward.metadata_json)
-        }));
+        const result = [];
+        for (const reward of rewards) {
+            const item = {
+                type: reward.reward_type,
+                ref: reward.reward_ref,
+                amount: reward.amount,
+                metadata: this.parseRewardMetadata(reward.metadata_json)
+            };
+            if (reward.reward_type === 'CARD_UNLOCK') {
+                const cardId = String(reward.reward_ref || '').trim();
+                item.name = cardId === '' ? 'Carta' : cardId;
+                item.thumb = '';
+                if (cardId !== '') {
+                    const card = await card_repository_1.default.getCardById(cardId);
+                    if (card) {
+                        item.name = String(card.name || cardId);
+                        item.thumb = String(card.image_url || '');
+                    }
+                }
+            }
+            result.push(item);
+        }
+        return result;
     }
     parseRewardMetadata(value) {
         if (!value)
@@ -334,16 +447,22 @@ class QuestService {
             return {};
         }
     }
+    safeRewardIterations(amount, fallback = 1) {
+        let n = typeof amount === 'bigint' ? Number(amount) : Number(amount);
+        if (!Number.isFinite(n) || n < 1)
+            n = fallback;
+        return Math.min(50000, Math.max(1, Math.floor(n)));
+    }
     async applyRewards(userId, questId) {
         const rewards = await quest_repository_1.default.listQuestRewards(questId);
         for (const reward of rewards) {
             if (reward.reward_type === 'EXP') {
                 const matchTypeRaw = String(this.parseRewardMetadata(reward.metadata_json).match_type || 'ai');
                 const matchType = (matchTypeRaw === 'casual' || matchTypeRaw === 'ranked' || matchTypeRaw === 'ai') ? matchTypeRaw : 'ai';
-                const amount = Math.max(1, Number(reward.amount || 1));
-                for (let i = 0; i < amount; i += 1) {
-                    await experience_service_1.default.awardExp(userId, matchType, true);
-                }
+                const iterations = this.safeRewardIterations(reward.amount, 1);
+                const rewardTable = constants_1.EXP_REWARDS[matchType] ?? constants_1.EXP_REWARDS.ai;
+                const expPerWin = rewardTable.win;
+                await experience_service_1.default.addExpPoints(userId, iterations * expPerWin);
             }
             else if (reward.reward_type === 'CARD_UNLOCK') {
                 const cardId = String(reward.reward_ref || '').trim();
@@ -352,6 +471,50 @@ class QuestService {
                 }
             }
         }
+    }
+    async areQuestPrerequisitesMet(userQuestByQuestId, prerequisites, definitionByCode, prerequisiteResolveCache) {
+        if (!Array.isArray(prerequisites) || prerequisites.length <= 0) {
+            return true;
+        }
+        for (const prerequisite of prerequisites) {
+            const prerequisiteType = String(prerequisite.prerequisite_type || '').trim().toUpperCase();
+            if (prerequisiteType !== 'QUEST_COMPLETED') {
+                continue;
+            }
+            const questId = await this.resolveQuestIdFromPrerequisiteReference(String(prerequisite.reference_value || ''), definitionByCode, prerequisiteResolveCache);
+            if (!questId || questId <= 0) {
+                return false;
+            }
+            const userQuest = userQuestByQuestId.get(questId);
+            if (!userQuest || String(userQuest.state || '').toLowerCase() !== 'completed') {
+                return false;
+            }
+        }
+        return true;
+    }
+    async resolveQuestIdFromPrerequisiteReference(referenceValue, definitionByCode, prerequisiteResolveCache) {
+        const raw = String(referenceValue || '').trim();
+        const cacheKey = raw.toLowerCase();
+        if (cacheKey === '')
+            return null;
+        if (prerequisiteResolveCache.has(cacheKey)) {
+            return prerequisiteResolveCache.get(cacheKey) || null;
+        }
+        const numeric = Number(raw);
+        if (Number.isFinite(numeric) && numeric > 0) {
+            const questId = Math.floor(numeric);
+            prerequisiteResolveCache.set(cacheKey, questId);
+            return questId;
+        }
+        const fromDefinitions = definitionByCode.get(cacheKey);
+        if (fromDefinitions) {
+            prerequisiteResolveCache.set(cacheKey, fromDefinitions.id);
+            return fromDefinitions.id;
+        }
+        const fromRepository = await quest_repository_1.default.getQuestByCode(raw);
+        const resolved = fromRepository ? Number(fromRepository.id) : null;
+        prerequisiteResolveCache.set(cacheKey, resolved);
+        return resolved;
     }
 }
 exports.default = new QuestService();

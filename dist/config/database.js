@@ -1106,6 +1106,9 @@ async function initDatabase() {
         await migrateUserSkinColumns();
         await migrateUserProfileAvatarColumn();
         await migrateChatAndFriendshipSchema();
+        await migrateFriendshipsIdDefaultPostgres();
+        await migratePostgresNumericSanity();
+        await migrateMonsterEncountersMatchIdBigintPostgres();
         // Migration: add default_unlocked column to cards if missing (existing DBs)
         await migrateCardsDefaultUnlocked();
         // Migration: add visual_auras column to cards if missing (existing DBs)
@@ -1234,6 +1237,29 @@ async function migrateChatAndFriendshipSchema() {
             }
         }
     }
+    // Bancos antigos / importados podem ter friendships sem timestamps usados pelo repositório.
+    const friendshipTsMigrations = usePostgres
+        ? [
+            'ALTER TABLE friendships ADD COLUMN requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+            'ALTER TABLE friendships ADD COLUMN accepted_at TIMESTAMP'
+        ]
+        : [
+            'ALTER TABLE friendships ADD COLUMN requested_at DATETIME DEFAULT CURRENT_TIMESTAMP',
+            'ALTER TABLE friendships ADD COLUMN accepted_at DATETIME'
+        ];
+    for (const sql of friendshipTsMigrations) {
+        try {
+            await exports.dbHelpers.exec(sql);
+        }
+        catch (e) {
+            const msg = e?.message || String(e);
+            if (!msg.includes('duplicate column') &&
+                !msg.includes('already exists') &&
+                !msg.includes('no such table')) {
+                console.warn('Migration friendships timestamp column:', msg);
+            }
+        }
+    }
     if (usePostgres) {
         await exports.dbHelpers.exec(`
       CREATE OR REPLACE FUNCTION cleanup_old_chat_messages()
@@ -1253,6 +1279,101 @@ async function migrateChatAndFriendshipSchema() {
     `).catch((e) => {
             console.warn('Migration cleanup_old_chat_messages function:', e?.message || String(e));
         });
+    }
+}
+/** Bancos importados/legados sem DEFAULT em friendships.id quebram INSERT sem id explícito. */
+async function migrateFriendshipsIdDefaultPostgres() {
+    if (!usePostgres)
+        return;
+    try {
+        await exports.dbHelpers.exec(`
+DO $migration$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'friendships'
+  ) THEN
+    CREATE SEQUENCE IF NOT EXISTS friendships_id_seq;
+    PERFORM setval(
+      'friendships_id_seq',
+      GREATEST(COALESCE((SELECT MAX(id) FROM friendships), 0), 1)
+    );
+    ALTER TABLE friendships ALTER COLUMN id SET DEFAULT nextval('friendships_id_seq');
+    PERFORM setval(
+      'friendships_id_seq',
+      (SELECT COALESCE(MAX(id), 1) FROM friendships)
+    );
+  END IF;
+END;
+$migration$;
+    `);
+    }
+    catch (e) {
+        console.warn('Migration friendships id default:', e?.message || String(e));
+    }
+}
+/** Corrige valores que estouram bigint / INTEGER e quebram queries (chat, EXP, recompensas). */
+async function migratePostgresNumericSanity() {
+    if (!usePostgres)
+        return;
+    try {
+        await exports.dbHelpers.exec(`
+DO $sanity$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns c
+    WHERE c.table_schema = 'public' AND c.table_name = 'users' AND c.column_name = 'experience'
+  ) THEN
+    UPDATE users SET experience = 2147483647
+    WHERE experience IS NOT NULL AND experience::bigint > 2147483647;
+    UPDATE users SET experience = 0 WHERE experience IS NOT NULL AND experience < 0;
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns c
+    WHERE c.table_schema = 'public' AND c.table_name = 'quest_rewards' AND c.column_name = 'amount'
+  ) THEN
+    UPDATE quest_rewards SET amount = 50000 WHERE amount IS NOT NULL AND amount > 50000;
+    UPDATE quest_rewards SET amount = 0 WHERE amount IS NOT NULL AND amount < 0;
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns c
+    WHERE c.table_schema = 'public' AND c.table_name = 'chat_messages'
+      AND c.column_name = 'timestamp' AND c.data_type = 'bigint'
+  ) THEN
+    UPDATE chat_messages SET timestamp = 9223372036854775807
+    WHERE timestamp > 9223372036854775807;
+    UPDATE chat_messages SET timestamp = 0 WHERE timestamp < 0;
+  END IF;
+END;
+$sanity$;
+    `);
+    }
+    catch (e) {
+        console.warn('Migration PG numeric sanity:', e?.message || String(e));
+    }
+}
+/** Match IDs do cliente podem exceder INTEGER (Godot usa floats grandes); BIGINT evita overflow em inserts. */
+async function migrateMonsterEncountersMatchIdBigintPostgres() {
+    if (!usePostgres)
+        return;
+    try {
+        await exports.dbHelpers.exec(`
+DO $mm$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns c
+    WHERE c.table_schema = 'public' AND c.table_name = 'monster_encounters'
+      AND c.column_name = 'match_id' AND c.data_type = 'integer'
+  ) THEN
+    ALTER TABLE monster_encounters
+      ALTER COLUMN match_id TYPE BIGINT USING match_id::bigint;
+  END IF;
+END;
+$mm$;
+    `);
+    }
+    catch (e) {
+        console.warn('Migration monster_encounters match_id bigint:', e?.message || String(e));
     }
 }
 async function migrateCardsDefaultUnlocked() {

@@ -23,6 +23,10 @@ class ChatRepository {
       const params: Array<string | number | null> = [];
       for (const msg of chunk) {
         placeholders.push('(?, ?, ?, ?, ?, ?, ?)');
+        const tsRaw = msg.timestamp;
+        const tsNum = typeof tsRaw === 'bigint' ? Number(tsRaw) : Number(tsRaw);
+        const safeTs =
+          Number.isFinite(tsNum) ? Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Math.floor(tsNum))) : Date.now();
         params.push(
           msg.channel,
           msg.senderUserId ?? null,
@@ -30,7 +34,7 @@ class ChatRepository {
           msg.recipientUserId ?? null,
           msg.recipientUsername ?? null,
           msg.message,
-          msg.timestamp
+          safeTs
         );
       }
       await dbHelpers.run(

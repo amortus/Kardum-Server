@@ -9,6 +9,14 @@ const friends_repository_1 = __importDefault(require("./friends.repository"));
 const user_repository_1 = __importDefault(require("../users/user.repository"));
 const socket_1 = require("../../config/socket");
 const router = (0, express_1.Router)();
+function safeEmitFriendUpdate(userId, payload) {
+    try {
+        (0, socket_1.emitFriendUpdate)(userId, payload);
+    }
+    catch (error) {
+        console.warn('Friend update emit failed:', error);
+    }
+}
 router.get('/', auth_middleware_1.authenticateToken, async (req, res) => {
     try {
         const items = await friends_repository_1.default.listUserFriends(req.userId);
@@ -37,30 +45,65 @@ router.post('/request', auth_middleware_1.authenticateToken, async (req, res) =>
             res.status(400).json({ error: 'username is required' });
             return;
         }
+        const selfId = Number(req.userId);
+        if (!Number.isFinite(selfId) || selfId <= 0) {
+            res.status(401).json({ error: 'Invalid session' });
+            return;
+        }
+        const me = await user_repository_1.default.getUserById(selfId);
+        if (!me) {
+            res.status(401).json({ error: 'User no longer exists; please log in again' });
+            return;
+        }
         const friend = await user_repository_1.default.getUserByUsername(username);
         if (!friend) {
             res.status(404).json({ error: 'User not found' });
             return;
         }
-        if (friend.id === req.userId) {
+        const friendId = Number(friend.id);
+        if (!Number.isFinite(friendId) || friendId <= 0) {
+            res.status(400).json({ error: 'Invalid target user' });
+            return;
+        }
+        if (friendId === selfId) {
             res.status(400).json({ error: 'Cannot add yourself' });
             return;
         }
-        const existing = await friends_repository_1.default.getRelationship(req.userId, friend.id);
+        const existing = await friends_repository_1.default.getRelationship(selfId, friendId);
         if (existing) {
             res.status(400).json({ error: 'Relationship already exists' });
             return;
         }
-        await friends_repository_1.default.createRequest(req.userId, friend.id);
-        (0, socket_1.emitFriendUpdate)(friend.id, {
+        await friends_repository_1.default.createRequest(selfId, friendId);
+        safeEmitFriendUpdate(friendId, {
             type: 'friend_request',
-            data: { fromUserId: req.userId, fromUsername: req.user?.username || 'Unknown' }
+            data: { fromUserId: selfId, fromUsername: req.user?.username || 'Unknown' }
         });
         res.json({ ok: true });
     }
     catch (error) {
         console.error('Friends request error:', error);
-        res.status(500).json({ error: 'Failed to create friend request' });
+        const message = String(error?.message || '');
+        const code = String(error?.code || '');
+        if (code === '23505' ||
+            message.includes('UNIQUE constraint failed') ||
+            message.includes('duplicate key value violates unique constraint')) {
+            res.status(400).json({ error: 'Relationship already exists' });
+            return;
+        }
+        if (code === '23503' ||
+            code === 'SQLITE_CONSTRAINT_FOREIGNKEY' ||
+            message.includes('FOREIGN KEY constraint failed') ||
+            message.includes('violates foreign key constraint')) {
+            res.status(400).json({
+                error: 'Não foi possível criar o pedido (conta inválida ou sessão desatualizada). Faça login de novo.'
+            });
+            return;
+        }
+        res.status(500).json({
+            error: 'Failed to create friend request',
+            detail: message || code || 'unknown_error'
+        });
     }
 });
 router.post('/accept', auth_middleware_1.authenticateToken, async (req, res) => {
@@ -76,11 +119,11 @@ router.post('/accept', auth_middleware_1.authenticateToken, async (req, res) => 
             return;
         }
         await friends_repository_1.default.acceptRequest(relation.id);
-        (0, socket_1.emitFriendUpdate)(friendId, {
+        safeEmitFriendUpdate(friendId, {
             type: 'friend_request_accepted',
             data: { byUserId: req.userId, byUsername: req.user?.username || 'Unknown' }
         });
-        (0, socket_1.emitFriendUpdate)(req.userId, {
+        safeEmitFriendUpdate(req.userId, {
             type: 'friend_request_accepted',
             data: { byUserId: req.userId, byUsername: req.user?.username || 'Unknown' }
         });
@@ -99,7 +142,7 @@ router.delete('/:friendId', auth_middleware_1.authenticateToken, async (req, res
             return;
         }
         await friends_repository_1.default.removeRelationship(req.userId, friendId);
-        (0, socket_1.emitFriendUpdate)(friendId, {
+        safeEmitFriendUpdate(friendId, {
             type: 'friend_removed',
             data: { byUserId: req.userId, byUsername: req.user?.username || 'Unknown' }
         });

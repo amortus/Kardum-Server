@@ -4,12 +4,96 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = __importDefault(require("../../config/database"));
+function safeQuestRewardAmount(raw) {
+    if (typeof raw === 'bigint') {
+        const n = Number(raw);
+        if (!Number.isFinite(n) || n < 0)
+            return 0;
+        return Math.min(50000, Math.floor(n));
+    }
+    if (typeof raw === 'string') {
+        const t = raw.trim();
+        if (!/^\d{1,9}$/.test(t))
+            return 0;
+        return Math.min(50000, parseInt(t, 10));
+    }
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n < 0)
+        return 0;
+    return Math.min(50000, Math.floor(n));
+}
 class QuestRepository {
     async listQuestDefinitions() {
         const rows = await database_1.default.queryAll(`SELECT *
        FROM quest_definitions
        WHERE is_active = 1
        ORDER BY id ASC`);
+        return rows.map((row) => ({
+            id: Number(row.id),
+            code: String(row.code),
+            title: String(row.title || ''),
+            description: String(row.description || ''),
+            giver_npc_template_id: row.giver_npc_template_id == null ? null : Number(row.giver_npc_template_id),
+            turnin_npc_template_id: row.turnin_npc_template_id == null ? null : Number(row.turnin_npc_template_id),
+            min_level: Number(row.min_level || 1),
+            recurrence_type: String(row.recurrence_type || 'none'),
+            auto_track: Number(row.auto_track || 0) === 1 || row.auto_track === true,
+            is_active: Number(row.is_active || 0) === 1 || row.is_active === true,
+            objective_logic: String(row.objective_logic || 'all') === 'any' ? 'any' : 'all',
+            metadata_json: row.metadata_json == null ? null : String(row.metadata_json)
+        }));
+    }
+    async listQuestDefinitionsForAdmin(options) {
+        const page = Math.max(1, Number(options?.page || 1));
+        const limit = Math.max(1, Math.min(200, Number(options?.limit || 50)));
+        const offset = (page - 1) * limit;
+        const clauses = [];
+        const params = [];
+        if (!options?.includeInactive) {
+            clauses.push(`is_active = 1`);
+        }
+        const search = String(options?.search || '').trim();
+        if (search !== '') {
+            clauses.push(`(LOWER(code) LIKE ? OR LOWER(title) LIKE ? OR LOWER(description) LIKE ?)`);
+            const like = `%${search.toLowerCase()}%`;
+            params.push(like, like, like);
+        }
+        if (Number.isFinite(options?.giverNpcTemplateId) && Number(options?.giverNpcTemplateId) > 0) {
+            clauses.push(`giver_npc_template_id = ?`);
+            params.push(Number(options?.giverNpcTemplateId));
+        }
+        const where = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+        const totalRow = await database_1.default.query(`SELECT COUNT(1) as total FROM quest_definitions ${where}`, params);
+        const rows = await database_1.default.queryAll(`SELECT *
+       FROM quest_definitions
+       ${where}
+       ORDER BY id ASC
+       LIMIT ? OFFSET ?`, [...params, limit, offset]);
+        return {
+            items: rows.map((row) => ({
+                id: Number(row.id),
+                code: String(row.code),
+                title: String(row.title || ''),
+                description: String(row.description || ''),
+                giver_npc_template_id: row.giver_npc_template_id == null ? null : Number(row.giver_npc_template_id),
+                turnin_npc_template_id: row.turnin_npc_template_id == null ? null : Number(row.turnin_npc_template_id),
+                min_level: Number(row.min_level || 1),
+                recurrence_type: String(row.recurrence_type || 'none'),
+                auto_track: Number(row.auto_track || 0) === 1 || row.auto_track === true,
+                is_active: Number(row.is_active || 0) === 1 || row.is_active === true,
+                objective_logic: String(row.objective_logic || 'all') === 'any' ? 'any' : 'all',
+                metadata_json: row.metadata_json == null ? null : String(row.metadata_json)
+            })),
+            total: Number(totalRow?.total || 0),
+            page,
+            limit
+        };
+    }
+    async listQuestDefinitionsByNpcTemplate(npcTemplateId) {
+        const rows = await database_1.default.queryAll(`SELECT *
+       FROM quest_definitions
+       WHERE giver_npc_template_id = ? OR turnin_npc_template_id = ?
+       ORDER BY id ASC`, [npcTemplateId, npcTemplateId]);
         return rows.map((row) => ({
             id: Number(row.id),
             code: String(row.code),
@@ -161,9 +245,59 @@ class QuestRepository {
             quest_id: Number(row.quest_id),
             reward_type: row.reward_type,
             reward_ref: row.reward_ref == null ? null : String(row.reward_ref),
-            amount: Number(row.amount || 0),
+            amount: safeQuestRewardAmount(row.amount),
             metadata_json: row.metadata_json == null ? null : String(row.metadata_json)
         }));
+    }
+    async listQuestPrerequisites(questId) {
+        const rows = await database_1.default.queryAll(`SELECT *
+       FROM quest_prerequisites
+       WHERE quest_id = ?
+       ORDER BY id ASC`, [questId]);
+        return rows.map((row) => ({
+            id: Number(row.id),
+            quest_id: Number(row.quest_id),
+            prerequisite_type: String(row.prerequisite_type || 'QUEST_COMPLETED'),
+            reference_value: String(row.reference_value || ''),
+            operator: String(row.operator || 'eq'),
+            required_count: Math.max(1, Number(row.required_count || 1))
+        }));
+    }
+    async listQuestPrerequisitesByQuestIds(questIds) {
+        const ids = Array.from(new Set(questIds.map((id) => Number(id)).filter((id) => Number.isFinite(id) && id > 0)));
+        if (ids.length <= 0)
+            return [];
+        const placeholders = ids.map(() => '?').join(', ');
+        const rows = await database_1.default.queryAll(`SELECT *
+       FROM quest_prerequisites
+       WHERE quest_id IN (${placeholders})
+       ORDER BY quest_id ASC, id ASC`, ids);
+        return rows.map((row) => ({
+            id: Number(row.id),
+            quest_id: Number(row.quest_id),
+            prerequisite_type: String(row.prerequisite_type || 'QUEST_COMPLETED'),
+            reference_value: String(row.reference_value || ''),
+            operator: String(row.operator || 'eq'),
+            required_count: Math.max(1, Number(row.required_count || 1))
+        }));
+    }
+    async replaceQuestPrerequisites(questId, prerequisites) {
+        await database_1.default.run(`DELETE FROM quest_prerequisites WHERE quest_id = ?`, [questId]);
+        for (const prerequisite of prerequisites) {
+            const prerequisiteType = String(prerequisite.prerequisite_type || '').trim().toUpperCase();
+            const referenceValue = String(prerequisite.reference_value || '').trim();
+            if (prerequisiteType === '' || referenceValue === '') {
+                continue;
+            }
+            await database_1.default.run(`INSERT INTO quest_prerequisites (quest_id, prerequisite_type, reference_value, operator, required_count)
+         VALUES (?, ?, ?, ?, ?)`, [
+                questId,
+                prerequisiteType,
+                referenceValue,
+                String(prerequisite.operator || 'eq'),
+                Math.max(1, Number(prerequisite.required_count || 1))
+            ]);
+        }
     }
     async listUserQuests(userId) {
         const rows = await database_1.default.queryAll(`SELECT *
@@ -278,6 +412,20 @@ class QuestRepository {
     async clearTrackingForQuest(userId, questId) {
         await this.untrackQuest(userId, questId);
     }
+    /** Remove progresso de objetivos e histórico de eventos (abandonar / reaceitar). */
+    async clearUserQuestProgressAndLedger(userQuestId, userId, questId) {
+        await database_1.default.run(`DELETE FROM user_quest_objective_progress WHERE user_quest_id = ?`, [userQuestId]);
+        await database_1.default.run(`DELETE FROM quest_event_ledger WHERE user_id = ? AND quest_id = ?`, [userId, questId]);
+    }
+    /** Volta a `accepted` limpando datas de abandono/conclusão (reabrir quest). */
+    async resetUserQuestRowToFreshAccepted(userQuestId) {
+        await database_1.default.run(`UPDATE user_quests
+       SET state = 'accepted',
+           abandoned_at = NULL,
+           completed_at = NULL,
+           last_updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`, [userQuestId]);
+    }
     async markEventIfNew(userId, questId, eventKey, eventType) {
         const existing = await database_1.default.query(`SELECT id
        FROM quest_event_ledger
@@ -299,6 +447,20 @@ class QuestRepository {
        FROM monster_templates
        WHERE id = ?`, [templateId]);
         return String(row?.name || '').trim();
+    }
+    async getMonsterTemplateIdentityById(templateId) {
+        // Schema atual de monster_templates não tem coluna `code` (evita SQL error que impedia progresso de quest).
+        const row = await database_1.default.query(`SELECT id, name
+       FROM monster_templates
+       WHERE id = ?
+       LIMIT 1`, [templateId]);
+        if (!row)
+            return null;
+        return {
+            id: Number(row.id),
+            code: '',
+            name: String(row.name || '').trim()
+        };
     }
 }
 exports.default = new QuestRepository();

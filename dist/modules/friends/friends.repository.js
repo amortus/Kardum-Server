@@ -1,13 +1,69 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
-const database_1 = __importDefault(require("../../config/database"));
+const database_1 = __importStar(require("../../config/database"));
 class FriendsRepository {
     async createRequest(userId, friendId) {
-        await database_1.default.run(`INSERT INTO friendships (user_id, friend_id, status)
-       VALUES (?, ?, 'pending')`, [userId, friendId]);
+        const insert = () => database_1.default.run(`INSERT INTO friendships (user_id, friend_id, status)
+         VALUES (?, ?, 'pending')`, [userId, friendId]);
+        try {
+            await insert();
+        }
+        catch (e) {
+            const msg = String(e?.message || '');
+            const code = String(e?.code || '');
+            const idBroken = database_1.usePostgres &&
+                (code === '23502' || (msg.includes('null value') && msg.includes('"id"') && msg.includes('friendships')));
+            if (!idBroken)
+                throw e;
+            await database_1.default
+                .exec(`
+DO $fix$
+BEGIN
+  CREATE SEQUENCE IF NOT EXISTS friendships_id_seq;
+  PERFORM setval(
+    'friendships_id_seq',
+    GREATEST(COALESCE((SELECT MAX(id) FROM friendships), 0), 1)
+  );
+  ALTER TABLE friendships ALTER COLUMN id SET DEFAULT nextval('friendships_id_seq');
+END;
+$fix$;
+        `)
+                .catch(() => { });
+            await insert();
+        }
     }
     async getRelationship(userId, friendId) {
         return database_1.default.query(`SELECT id, user_id, friend_id, status, requested_at, accepted_at

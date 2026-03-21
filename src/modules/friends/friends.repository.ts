@@ -1,4 +1,4 @@
-import dbHelpers from '../../config/database';
+import dbHelpers, { usePostgres } from '../../config/database';
 
 export type FriendRow = {
   id: number;
@@ -18,11 +18,37 @@ export type FriendListItem = {
 
 class FriendsRepository {
   async createRequest(userId: number, friendId: number): Promise<void> {
-    await dbHelpers.run(
-      `INSERT INTO friendships (user_id, friend_id, status)
-       VALUES (?, ?, 'pending')`,
-      [userId, friendId]
-    );
+    const insert = () =>
+      dbHelpers.run(
+        `INSERT INTO friendships (user_id, friend_id, status)
+         VALUES (?, ?, 'pending')`,
+        [userId, friendId]
+      );
+    try {
+      await insert();
+    } catch (e: any) {
+      const msg = String(e?.message || '');
+      const code = String(e?.code || '');
+      const idBroken =
+        usePostgres &&
+        (code === '23502' || (msg.includes('null value') && msg.includes('"id"') && msg.includes('friendships')));
+      if (!idBroken) throw e;
+      await dbHelpers
+        .exec(`
+DO $fix$
+BEGIN
+  CREATE SEQUENCE IF NOT EXISTS friendships_id_seq;
+  PERFORM setval(
+    'friendships_id_seq',
+    GREATEST(COALESCE((SELECT MAX(id) FROM friendships), 0), 1)
+  );
+  ALTER TABLE friendships ALTER COLUMN id SET DEFAULT nextval('friendships_id_seq');
+END;
+$fix$;
+        `)
+        .catch(() => {});
+      await insert();
+    }
   }
 
   async getRelationship(userId: number, friendId: number): Promise<FriendRow | null> {

@@ -16,7 +16,10 @@ class ChatRepository {
             const params = [];
             for (const msg of chunk) {
                 placeholders.push('(?, ?, ?, ?, ?, ?, ?)');
-                params.push(msg.channel, msg.senderUserId ?? null, msg.senderUsername, msg.recipientUserId ?? null, msg.recipientUsername ?? null, msg.message, msg.timestamp);
+                const tsRaw = msg.timestamp;
+                const tsNum = typeof tsRaw === 'bigint' ? Number(tsRaw) : Number(tsRaw);
+                const safeTs = Number.isFinite(tsNum) ? Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Math.floor(tsNum))) : Date.now();
+                params.push(msg.channel, msg.senderUserId ?? null, msg.senderUsername, msg.recipientUserId ?? null, msg.recipientUsername ?? null, msg.message, safeTs);
             }
             await database_1.default.run(`INSERT INTO chat_messages
           (channel, sender_user_id, sender_username, recipient_user_id, recipient_username, message, timestamp)

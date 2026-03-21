@@ -24,6 +24,7 @@ export type NpcSpawn = {
 declare class NpcRepository {
     listTemplates(): Promise<NpcTemplate[]>;
     getTemplateByCode(code: string): Promise<NpcTemplate | null>;
+    getTemplateByNameOrCode(nameOrCode: string): Promise<NpcTemplate | null>;
     createTemplate(payload: {
         code: string;
         name: string;
