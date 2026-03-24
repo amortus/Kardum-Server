@@ -33,3 +33,8 @@ DEPLOY_PRODUCAO_SEGURO_TEMPLATE.md
 *.csproj
 *.asmdef
 *.prefab
+
+# Platforms not used
+railway.json
+vercel.json
+.vercel/
