@@ -1,1 +1,0 @@
-{"version":3,"file":"admin-command.catalog.d.ts","sourceRoot":"","sources":["../../../src/modules/admin/admin-command.catalog.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,eAAe,GAAG;IAC5B,OAAO,EAAE,MAAM,CAAC;IAChB,WAAW,EAAE,MAAM,CAAC;IACpB,KAAK,EAAE,MAAM,CAAC;IACd,UAAU,EAAE,OAAO,GAAG,KAAK,CAAC;IAC5B,OAAO,EAAE,MAAM,CAAC;CACjB,CAAC;AAEF,eAAO,MAAM,sBAAsB,EAAE,eAAe,EAyBnD,CAAC"}
