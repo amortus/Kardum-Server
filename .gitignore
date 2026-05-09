@@ -19,6 +19,8 @@ tmp/
 !/readme.md
 .agent/
 .claude/
+.cursor/
+tmp/
 
 # Legacy stacks not used anymore
 [Ll]ibrary/
