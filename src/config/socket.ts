@@ -417,6 +417,14 @@ export async function setupSocketIO(server: HTTPServer): Promise<SocketIOServer>
         return next(new Error('User not found'));
       }
 
+      const status = (user as any).account_status;
+      if (status === 'frozen') {
+        return next(new Error('account_frozen'));
+      }
+      if (status === 'banned') {
+        return next(new Error('account_banned'));
+      }
+
       socket.userId = user.id;
       socket.user = {
         id: user.id,
@@ -436,8 +444,8 @@ export async function setupSocketIO(server: HTTPServer): Promise<SocketIOServer>
       };
 
       next();
-    } catch (error) {
-      next(new Error('Invalid token'));
+    } catch (error: any) {
+      next(new Error(error?.message || 'Invalid token'));
     }
   });
 
@@ -462,6 +470,18 @@ export async function setupSocketIO(server: HTTPServer): Promise<SocketIOServer>
     }
     userSockets.get(userId)!.add(socket.id);
     socket.join(`user:${userId}`);
+
+    // Force-logout previous sessions if a new login happened
+    const { AuthService } = require('../modules/auth/auth.service');
+    if (AuthService._pendingForceLogout.has(userId)) {
+      AuthService._pendingForceLogout.delete(userId);
+      // Kick all OTHER sockets for this user (current socket keeps its connection)
+      const otherSockets = [...(userSockets.get(userId) || [])].filter((sid) => sid !== socket.id);
+      for (const sid of otherSockets) {
+        io.to(sid).emit('session_invalidated', { reason: 'new_login_elsewhere' });
+        io.sockets.sockets.get(sid)?.disconnect(true);
+      }
+    }
 
     registerChatHandlers(io, socket, {
       getUserSocketIds

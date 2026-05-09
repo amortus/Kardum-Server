@@ -1,5 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { ENV } from './config/env';
 import { getUploadsCandidates, resolveReadableUploadsDir } from './utils/uploads-path';
@@ -20,15 +22,28 @@ import worldRegionRoutes from './modules/world/world_region.routes';
 export function createApp(): Express {
   const app = express();
 
-  // Middleware
-  app.use(cors({
-    origin: ENV.CORS_ORIGINS,
-    credentials: true
-  }));
-  // Uploads no admin usam data URL (base64) e podem ser bem grandes.
-  // Nginx/proxy também precisa permitir (ver deploy/aws/nginx.conf).
-  app.use(express.json({ limit: '256mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '256mb' }));
+  // Security headers
+  app.use(helmet({ contentSecurityPolicy: false }));
+  app.set('trust proxy', 1);
+
+  // CORS
+  app.use(cors({ origin: ENV.CORS_ORIGINS, credentials: true }));
+
+  // Global anti-DoS rate limit
+  app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false }));
+
+  // Auth-specific rate limits (applied before routes)
+  const authLoginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false, message: { error: 'Muitas tentativas. Aguarde 15 minutos.', code: 'too_many_requests' } });
+  const authRegisterLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false, message: { error: 'Limite de cadastros atingido. Tente mais tarde.', code: 'too_many_requests' } });
+  const resendLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 3, standardHeaders: true, legacyHeaders: false, message: { error: 'Limite de reenvio atingido. Aguarde 1 hora.', code: 'too_many_requests' } });
+
+  app.use('/api/auth/login', authLoginLimiter);
+  app.use('/api/auth/register', authRegisterLimiter);
+  app.use('/api/auth/resend-verification', resendLimiter);
+
+  // Body parsers — admin usa base64 (data URLs), mas limitamos uploads binários
+  app.use(express.json({ limit: '20mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
   // Serve static files (admin dashboard only - game client is in Godot)
   app.use('/admin', express.static(path.join(__dirname, '../admin')));

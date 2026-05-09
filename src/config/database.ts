@@ -1339,6 +1339,12 @@ async function initDatabase(): Promise<void> {
     // Migration: expand monster spawn patrol radius (120 → 600)
     await migrateMonsterSpawnRadius();
 
+    // Migration: LGPD fields + email verification + account status
+    await migrateUserLgpdAndAuthFields();
+
+    // Migration: auth security tables (email_tokens, active_sessions, login_attempts)
+    await migrateAuthSecurityTables();
+
     // Ensure default collections exist
     await seedDefaultCollections();
 
@@ -2053,6 +2059,96 @@ async function migrateMonsterSpawnRadius(): Promise<void> {
   } catch (e: any) {
     console.warn('migrateMonsterSpawnRadius:', e?.message || e);
   }
+}
+
+async function migrateUserLgpdAndAuthFields(): Promise<void> {
+  const tsType = usePostgres ? 'TIMESTAMP' : 'DATETIME';
+  const postgresCols: Array<[string, string]> = [
+    ['full_name',          'VARCHAR(255)'],
+    ['birth_date',         'DATE'],
+    ['phone',              'VARCHAR(20)'],
+    ['email_verified',     'BOOLEAN DEFAULT FALSE'],
+    ['email_verified_at',  tsType],
+    ['account_status',     "VARCHAR(32) DEFAULT 'active'"],
+    ['lgpd_accepted_at',   tsType],
+    ['lgpd_ip',            'VARCHAR(64)'],
+  ];
+  const sqliteCols: Array<[string, string]> = [
+    ['full_name',          'TEXT'],
+    ['birth_date',         'TEXT'],
+    ['phone',              'TEXT'],
+    ['email_verified',     'INTEGER DEFAULT 0'],
+    ['email_verified_at',  'DATETIME'],
+    ['account_status',     "TEXT DEFAULT 'active'"],
+    ['lgpd_accepted_at',   'DATETIME'],
+    ['lgpd_ip',            'TEXT'],
+  ];
+  const cols = usePostgres ? postgresCols : sqliteCols;
+  for (const [colName, colDef] of cols) {
+    try {
+      await dbHelpers.exec(`ALTER TABLE users ADD COLUMN ${colName} ${colDef}`);
+    } catch (e: any) {
+      const msg = e?.message || String(e);
+      if (!msg.includes('duplicate column') && !msg.includes('already exists')) {
+        console.warn(`Migration users ${colName}:`, msg);
+      }
+    }
+  }
+  // Existing users: activate and mark email as verified
+  try {
+    await dbHelpers.run(
+      `UPDATE users SET account_status = 'active', email_verified = ${usePostgres ? 'TRUE' : '1'},
+       email_verified_at = created_at WHERE account_status IS NULL OR account_status = ''`
+    );
+  } catch (_e) {}
+}
+
+async function migrateAuthSecurityTables(): Promise<void> {
+  const tsType = usePostgres ? 'TIMESTAMP' : 'DATETIME';
+  const pk = usePostgres ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT';
+  const refOpt = usePostgres ? 'REFERENCES users(id) ON DELETE CASCADE' : 'REFERENCES users(id)';
+
+  await dbHelpers.exec(`
+    CREATE TABLE IF NOT EXISTS email_tokens (
+      id ${pk},
+      user_id INTEGER NOT NULL ${refOpt},
+      token VARCHAR(128) UNIQUE NOT NULL,
+      type VARCHAR(32) NOT NULL,
+      expires_at ${tsType} NOT NULL,
+      used_at ${tsType},
+      created_at ${tsType} DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  try { await dbHelpers.exec(`CREATE INDEX IF NOT EXISTS idx_email_tokens_token ON email_tokens(token)`); } catch (_e) {}
+  try { await dbHelpers.exec(`CREATE INDEX IF NOT EXISTS idx_email_tokens_user_type ON email_tokens(user_id, type)`); } catch (_e) {}
+
+  await dbHelpers.exec(`
+    CREATE TABLE IF NOT EXISTS active_sessions (
+      id ${pk},
+      user_id INTEGER NOT NULL ${refOpt},
+      token_hash VARCHAR(128) UNIQUE NOT NULL,
+      ip_address VARCHAR(64),
+      user_agent TEXT,
+      created_at ${tsType} DEFAULT CURRENT_TIMESTAMP,
+      last_seen_at ${tsType} DEFAULT CURRENT_TIMESTAMP,
+      expires_at ${tsType} NOT NULL,
+      invalidated_at ${tsType}
+    )
+  `);
+  try { await dbHelpers.exec(`CREATE INDEX IF NOT EXISTS idx_active_sessions_user ON active_sessions(user_id)`); } catch (_e) {}
+  try { await dbHelpers.exec(`CREATE INDEX IF NOT EXISTS idx_active_sessions_token ON active_sessions(token_hash)`); } catch (_e) {}
+
+  await dbHelpers.exec(`
+    CREATE TABLE IF NOT EXISTS login_attempts (
+      id ${pk},
+      identifier VARCHAR(255) NOT NULL,
+      ip_address VARCHAR(64),
+      attempted_at ${tsType} DEFAULT CURRENT_TIMESTAMP,
+      success ${usePostgres ? 'BOOLEAN' : 'INTEGER'} DEFAULT ${usePostgres ? 'FALSE' : '0'}
+    )
+  `);
+  try { await dbHelpers.exec(`CREATE INDEX IF NOT EXISTS idx_login_attempts_identifier ON login_attempts(identifier, attempted_at)`); } catch (_e) {}
+  try { await dbHelpers.exec(`CREATE INDEX IF NOT EXISTS idx_login_attempts_ip ON login_attempts(ip_address, attempted_at)`); } catch (_e) {}
 }
 
 // Initialize database

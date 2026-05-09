@@ -77,7 +77,17 @@ export const ENV = {
   
   // Logging
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
-  PVP_IDENTITY_DEBUG: process.env.PVP_IDENTITY_DEBUG === 'true'
+  PVP_IDENTITY_DEBUG: process.env.PVP_IDENTITY_DEBUG === 'true',
+
+  // Email (Resend)
+  RESEND_API_KEY: (process.env.RESEND_API_KEY || '').trim(),
+  EMAIL_FROM: process.env.EMAIL_FROM || 'noreply@kardum.com',
+  FRONTEND_URL: (process.env.FRONTEND_URL || 'http://localhost:3000').trim(),
+
+  // Session / Auth security
+  SESSION_EXPIRES_DAYS: parseInt(process.env.SESSION_EXPIRES_DAYS || '7', 10),
+  LOGIN_MAX_ATTEMPTS: parseInt(process.env.LOGIN_MAX_ATTEMPTS || '5', 10),
+  LOGIN_WINDOW_MINUTES: parseInt(process.env.LOGIN_WINDOW_MINUTES || '15', 10),
 };
 
 export function isDevelopment(): boolean {
