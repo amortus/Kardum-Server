@@ -1,0 +1,544 @@
+{
+  "npcs": [
+    { "code": "wandering_trader1", "name": "Wanderer" },
+    { "code": "dealer", "name": "Dealer" },
+    { "code": "sister_marwen_ashveil", "name": "Sister Marwen Ashveil" },
+    { "code": "arcanist_lyra_voidwhisper", "name": "Arcanist Lyra Voidwhisper" }
+  ],
+  "quests": [
+    {
+      "code": "W-ANT-01",
+      "title": "Marcas no Barro",
+      "description": "A estrada está viva debaixo dos seus pés. Comece pelo enxame comum.",
+      "giverNpcCode": "wandering_trader1",
+      "turninNpcCode": "wandering_trader1",
+      "minLevel": 1,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Ant", "requiredCount": 20 }
+      ],
+      "prerequisites": []
+    },
+    {
+      "code": "W-ANT-02",
+      "title": "A Trilha Negra",
+      "description": "As formigas negras seguem uma rota marcada. Corte a trilha.",
+      "giverNpcCode": "wandering_trader1",
+      "turninNpcCode": "wandering_trader1",
+      "minLevel": 1,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Black Ant", "requiredCount": 15 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "W-ANT-01", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "W-ANT-03",
+      "title": "Gelo Fora de Lugar",
+      "description": "Um frio estranho acompanha o enxame. Elimine a fonte.",
+      "giverNpcCode": "wandering_trader1",
+      "turninNpcCode": "wandering_trader1",
+      "minLevel": 1,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Ice Ant", "requiredCount": 15 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "W-ANT-02", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "W-ANT-04",
+      "title": "Controle de Praga",
+      "description": "Não é um enxame, é uma invasão. Faça uma limpeza pesada.",
+      "giverNpcCode": "wandering_trader1",
+      "turninNpcCode": "wandering_trader1",
+      "minLevel": 2,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Ant", "requiredCount": 50 },
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Black Ant", "requiredCount": 35 },
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Ice Ant", "requiredCount": 35 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "W-ANT-03", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "W-ANT-05",
+      "title": "A Colônia Não Dorme",
+      "description": "O enxame continua vindo. Mostre que a estrada tem dono.",
+      "giverNpcCode": "wandering_trader1",
+      "turninNpcCode": "wandering_trader1",
+      "minLevel": 3,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Ant", "requiredCount": 80 },
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Black Ant", "requiredCount": 60 },
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Ice Ant", "requiredCount": 60 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "W-ANT-04", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "W-GBL-01",
+      "title": "Primeiras Pegadas Verdes",
+      "description": "Depois do enxame, vieram os saqueadores. Comece pelos Goblins comuns.",
+      "giverNpcCode": "wandering_trader1",
+      "turninNpcCode": "wandering_trader1",
+      "minLevel": 3,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Goblin", "requiredCount": 20 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "W-ANT-05", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "D-GBL-01",
+      "title": "Lança na Sombra",
+      "description": "Eu pago por estradas seguras. Comece derrubando os lanceiros.",
+      "giverNpcCode": "dealer",
+      "turninNpcCode": "dealer",
+      "minLevel": 3,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Goblin Spearman", "requiredCount": 25 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "W-GBL-01", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "D-GBL-02",
+      "title": "Choque e Corrida",
+      "description": "Os Chargers atropelam qualquer um. Corte o ímpeto.",
+      "giverNpcCode": "dealer",
+      "turninNpcCode": "dealer",
+      "minLevel": 4,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Goblin Charger", "requiredCount": 25 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "D-GBL-01", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "D-GBL-03",
+      "title": "Máscaras e Totens",
+      "description": "Sem Shaman, sem maldição. Sem maldição, sem pânico.",
+      "giverNpcCode": "dealer",
+      "turninNpcCode": "dealer",
+      "minLevel": 4,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Goblin Shaman", "requiredCount": 20 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "D-GBL-02", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "D-GBL-04",
+      "title": "Ponta de Lança",
+      "description": "Os Spearmen estão segurando a linha. Quebre a linha.",
+      "giverNpcCode": "dealer",
+      "turninNpcCode": "dealer",
+      "minLevel": 5,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Goblin Spearman", "requiredCount": 35 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "D-GBL-03", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "D-GBL-05",
+      "title": "Carga Repetida",
+      "description": "Os Chargers voltam sempre. Faça eles pararem.",
+      "giverNpcCode": "dealer",
+      "turninNpcCode": "dealer",
+      "minLevel": 5,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Goblin Charger", "requiredCount": 35 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "D-GBL-04", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "D-GBL-06",
+      "title": "Quebrar o Totem",
+      "description": "Os Shamans estão fortalecendo o bando. Apague a faísca.",
+      "giverNpcCode": "dealer",
+      "turninNpcCode": "dealer",
+      "minLevel": 6,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Goblin Shaman", "requiredCount": 30 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "D-GBL-05", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "D-GBL-07",
+      "title": "Saqueadores Comuns",
+      "description": "Sem peões, sem bando. Reduza os Goblins comuns.",
+      "giverNpcCode": "dealer",
+      "turninNpcCode": "dealer",
+      "minLevel": 6,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Goblin", "requiredCount": 60 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "D-GBL-06", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "D-PLG-01",
+      "title": "O Cheiro da Praga",
+      "description": "O bando era financiado por algo pior. Siga o fedor.",
+      "giverNpcCode": "dealer",
+      "turninNpcCode": "dealer",
+      "minLevel": 6,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Zombie", "requiredCount": 15 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "D-GBL-07", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "M-UND-01",
+      "title": "Ossos que Andam",
+      "description": "Quebre os ossos antes que virem exército.",
+      "giverNpcCode": "sister_marwen_ashveil",
+      "turninNpcCode": "sister_marwen_ashveil",
+      "minLevel": 6,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Skeleton", "requiredCount": 30 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "D-PLG-01", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "M-UND-02",
+      "title": "Purga na Névoa",
+      "description": "Se anda e não respira, devolva ao chão.",
+      "giverNpcCode": "sister_marwen_ashveil",
+      "turninNpcCode": "sister_marwen_ashveil",
+      "minLevel": 6,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Zombie", "requiredCount": 30 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "M-UND-01", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "M-UND-03",
+      "title": "Vanguarda Esquelética",
+      "description": "Eles estão se organizando. Corte a vanguarda.",
+      "giverNpcCode": "sister_marwen_ashveil",
+      "turninNpcCode": "sister_marwen_ashveil",
+      "minLevel": 7,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Skeleton", "requiredCount": 80 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "M-UND-02", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "M-UND-04",
+      "title": "A Horda Cambaleante",
+      "description": "O apodrecido também conta como ameaça.",
+      "giverNpcCode": "sister_marwen_ashveil",
+      "turninNpcCode": "sister_marwen_ashveil",
+      "minLevel": 8,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Zombie", "requiredCount": 80 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "M-UND-03", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "M-ELI-01",
+      "title": "Sangue no Cascalho",
+      "description": "Pegadas pesadas surgiram na estrada. Trolls.",
+      "giverNpcCode": "sister_marwen_ashveil",
+      "turninNpcCode": "sister_marwen_ashveil",
+      "minLevel": 9,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Troll", "requiredCount": 10 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "M-UND-04", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "M-ELI-02",
+      "title": "Sombras no Céu",
+      "description": "Asas cortam as nuvens. Wyverns.",
+      "giverNpcCode": "sister_marwen_ashveil",
+      "turninNpcCode": "sister_marwen_ashveil",
+      "minLevel": 9,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Wyvern", "requiredCount": 8 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "M-ELI-01", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "L-ELI-01",
+      "title": "Prova de Força",
+      "description": "Antes do abismo, você precisa sobreviver ao peso da realidade.",
+      "giverNpcCode": "arcanist_lyra_voidwhisper",
+      "turninNpcCode": "arcanist_lyra_voidwhisper",
+      "minLevel": 9,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Troll", "requiredCount": 25 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "M-ELI-02", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "L-ELI-02",
+      "title": "Prova de Caça",
+      "description": "O céu também mata. Traga as asas ao chão.",
+      "giverNpcCode": "arcanist_lyra_voidwhisper",
+      "turninNpcCode": "arcanist_lyra_voidwhisper",
+      "minLevel": 10,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Wyvern", "requiredCount": 20 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "L-ELI-01", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "L-RIT-01",
+      "title": "Quebrar o Ritual",
+      "description": "Servos alimentam o véu. Corte o fluxo antes do Demon se firmar.",
+      "giverNpcCode": "arcanist_lyra_voidwhisper",
+      "turninNpcCode": "arcanist_lyra_voidwhisper",
+      "minLevel": 11,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Goblin Shaman", "requiredCount": 40 },
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Skeleton", "requiredCount": 40 },
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Zombie", "requiredCount": 40 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "L-ELI-02", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "L-ELI-03",
+      "title": "Últimos Preparativos",
+      "description": "Uma última ronda. Se falharmos aqui, o Demon vem para ficar.",
+      "giverNpcCode": "arcanist_lyra_voidwhisper",
+      "turninNpcCode": "arcanist_lyra_voidwhisper",
+      "minLevel": 12,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Troll", "requiredCount": 25 },
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Wyvern", "requiredCount": 25 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "L-RIT-01", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "L-DEMON-01",
+      "title": "O Chefe do Abismo",
+      "description": "Acabou. Encontre o Demon e vença.",
+      "giverNpcCode": "arcanist_lyra_voidwhisper",
+      "turninNpcCode": "arcanist_lyra_voidwhisper",
+      "minLevel": 12,
+      "recurrenceType": "none",
+      "autoTrack": true,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Demon", "requiredCount": 1 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "L-ELI-03", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "L-DEMON-02",
+      "title": "Prova do Caçador de Demônios",
+      "description": "Uma vitória pode ser sorte. Três vitórias viram história.",
+      "giverNpcCode": "arcanist_lyra_voidwhisper",
+      "turninNpcCode": "arcanist_lyra_voidwhisper",
+      "minLevel": 12,
+      "recurrenceType": "none",
+      "autoTrack": false,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Demon", "requiredCount": 3 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "L-DEMON-01", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "L-DEMON-03",
+      "title": "Exorcismo Final",
+      "description": "O véu fecha quando o Demon cai... repetidas vezes.",
+      "giverNpcCode": "arcanist_lyra_voidwhisper",
+      "turninNpcCode": "arcanist_lyra_voidwhisper",
+      "minLevel": 13,
+      "recurrenceType": "none",
+      "autoTrack": false,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Demon", "requiredCount": 7 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "L-DEMON-02", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "RW-ANT-01",
+      "title": "Extermínio do Enxame",
+      "description": "O Wanderer sempre encontra mais trilhas tomadas. Limpe outra vez.",
+      "giverNpcCode": "wandering_trader1",
+      "turninNpcCode": "wandering_trader1",
+      "minLevel": 5,
+      "recurrenceType": "daily",
+      "autoTrack": false,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Ant", "requiredCount": 60 },
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Black Ant", "requiredCount": 40 },
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Ice Ant", "requiredCount": 40 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "W-ANT-05", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "RD-GBL-01",
+      "title": "Operação Anti-Shaman",
+      "description": "O Dealer quer os Shamans fora de circulação.",
+      "giverNpcCode": "dealer",
+      "turninNpcCode": "dealer",
+      "minLevel": 7,
+      "recurrenceType": "daily",
+      "autoTrack": false,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Goblin Shaman", "requiredCount": 25 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "D-PLG-01", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "RM-UND-01",
+      "title": "Pilha de Ossos",
+      "description": "Marwen precisa de paz. Dê a ela isso.",
+      "giverNpcCode": "sister_marwen_ashveil",
+      "turninNpcCode": "sister_marwen_ashveil",
+      "minLevel": 8,
+      "recurrenceType": "daily",
+      "autoTrack": false,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Skeleton", "requiredCount": 60 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "M-UND-04", "operator": "eq", "requiredCount": 1 }
+      ]
+    },
+    {
+      "code": "RL-DEMON-01",
+      "title": "Prova do Véu",
+      "description": "Lyra mantém o selo estável com vitórias repetidas.",
+      "giverNpcCode": "arcanist_lyra_voidwhisper",
+      "turninNpcCode": "arcanist_lyra_voidwhisper",
+      "minLevel": 13,
+      "recurrenceType": "weekly",
+      "autoTrack": false,
+      "objectiveLogic": "all",
+      "objectives": [
+        { "objectiveType": "WIN_DUEL_VS_MONSTER_TEMPLATE", "targetRef": "Demon", "requiredCount": 5 }
+      ],
+      "prerequisites": [
+        { "prerequisiteType": "QUEST_COMPLETED", "referenceValue": "L-DEMON-03", "operator": "eq", "requiredCount": 1 }
+      ]
+    }
+  ]
+}

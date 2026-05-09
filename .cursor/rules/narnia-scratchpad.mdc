@@ -1,0 +1,10 @@
+---
+description: Use _NARNIA as scratchpad to avoid repo noise
+alwaysApply: true
+---
+
+# _NARNIA é a pasta de “bagunças”
+
+- Qualquer conteúdo **temporário** (rascunhos, anotações, listas, dumps, conversões, extrações) deve ir para `E:\PROJETOS\_NARNIA`.
+- Prefira criar arquivos `.md`/`.txt` em `_NARNIA` em vez de espalhar esses artefatos dentro dos repositórios (`Kardum Mobile`, `tcg-godot`, etc.).
+- Se precisar criar um arquivo intermediário (ex.: extração de `.docx`), crie em `_NARNIA` e nomeie de forma explícita: `<assunto>.extracted.txt`, `<assunto>.md`.

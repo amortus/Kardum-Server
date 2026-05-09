@@ -1,0 +1,1562 @@
+[
+  {
+    "id": 1,
+    "template_id": 5,
+    "card_id": "slc_mon_abominacao_de_cinzas",
+    "drop_chance_percent": 5.1514,
+    "is_active": 1,
+    "created_at": "2026-03-04 20:31:04",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 4,
+    "template_id": 5,
+    "card_id": "slc_eqp_adaga_de_enxofre",
+    "drop_chance_percent": 7.503,
+    "is_active": 1,
+    "created_at": "2026-03-04 20:31:24",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 5,
+    "template_id": 5,
+    "card_id": "slc_req_fishman",
+    "drop_chance_percent": 81.7807,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 6,
+    "template_id": 5,
+    "card_id": "slc_req_skeleton",
+    "drop_chance_percent": 98.8159,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 7,
+    "template_id": 5,
+    "card_id": "slc_req_slime",
+    "drop_chance_percent": 65.1724,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 8,
+    "template_id": 5,
+    "card_id": "slc_eqp_bastao_do_bruxo_carmesim",
+    "drop_chance_percent": 63.5817,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 9,
+    "template_id": 5,
+    "card_id": "slc_req_bomber_bug",
+    "drop_chance_percent": 70.4192,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 10,
+    "template_id": 5,
+    "card_id": "slc_eqp_capuz_do_vigia_do_vazio",
+    "drop_chance_percent": 70.1509,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 11,
+    "template_id": 5,
+    "card_id": "slc_req_crab",
+    "drop_chance_percent": 77.9856,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 12,
+    "template_id": 5,
+    "card_id": "slc_mon_demonio_do_sussurro",
+    "drop_chance_percent": 60.819,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 13,
+    "template_id": 5,
+    "card_id": "slc_req_giant_viper",
+    "drop_chance_percent": 79.4626,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 14,
+    "template_id": 5,
+    "card_id": "slc_eqp_manto_de_penitencia_macabra",
+    "drop_chance_percent": 61.7149,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 15,
+    "template_id": 5,
+    "card_id": "slc_req_plant_monster",
+    "drop_chance_percent": 66.9231,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 16,
+    "template_id": 5,
+    "card_id": "slc_mon_profanador_de_reliquias",
+    "drop_chance_percent": 69.034,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 17,
+    "template_id": 5,
+    "card_id": "slc_mon_profeta_do_vazio_maldito",
+    "drop_chance_percent": 94.1962,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 18,
+    "template_id": 5,
+    "card_id": "slc_req_skeleton_archer",
+    "drop_chance_percent": 97.6058,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 19,
+    "template_id": 5,
+    "card_id": "slc_req_weranglerfish",
+    "drop_chance_percent": 77.7555,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 21,
+    "template_id": 5,
+    "card_id": "slc_mon_algoz_do_abismo",
+    "drop_chance_percent": 21.5459,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 22,
+    "template_id": 5,
+    "card_id": "slc_eqp_anel_do_nono_circulo",
+    "drop_chance_percent": 8.15,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 23,
+    "template_id": 5,
+    "card_id": "slc_mon_bruxo_da_lua_morta",
+    "drop_chance_percent": 21.2795,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 24,
+    "template_id": 5,
+    "card_id": "slc_mon_capataz_da_mina_macabra",
+    "drop_chance_percent": 17.3771,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 25,
+    "template_id": 5,
+    "card_id": "slc_spl_coro_dos_condenados",
+    "drop_chance_percent": 8.4359,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 26,
+    "template_id": 5,
+    "card_id": "slc_spl_coroa_da_noite_sem_fim",
+    "drop_chance_percent": 24.7018,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 27,
+    "template_id": 5,
+    "card_id": "slc_spl_correntes_do_inferno_fundo",
+    "drop_chance_percent": 18.5724,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 29,
+    "template_id": 5,
+    "card_id": "slc_req_mushroom_monster",
+    "drop_chance_percent": 8.0511,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 30,
+    "template_id": 5,
+    "card_id": "slc_eqp_sino_da_ruina",
+    "drop_chance_percent": 11.627,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 31,
+    "template_id": 5,
+    "card_id": "slc_req_skeleton_knight",
+    "drop_chance_percent": 15.8458,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 32,
+    "template_id": 5,
+    "card_id": "slc_req_skeleton_mage",
+    "drop_chance_percent": 19.8015,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 33,
+    "template_id": 5,
+    "card_id": "slc_mon_andarilho_da_carne_corrompida",
+    "drop_chance_percent": 8.2396,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 34,
+    "template_id": 5,
+    "card_id": "slc_eqp_armadura_da_cripta",
+    "drop_chance_percent": 18.8545,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 35,
+    "template_id": 5,
+    "card_id": "slc_mon_ceifador_do_selo",
+    "drop_chance_percent": 9.2812,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 36,
+    "template_id": 5,
+    "card_id": "slc_eqp_coroa_de_espinhos_ocultos",
+    "drop_chance_percent": 23.0334,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 37,
+    "template_id": 5,
+    "card_id": "slc_mon_espectro_do_castelo",
+    "drop_chance_percent": 14.3647,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 38,
+    "template_id": 5,
+    "card_id": "slc_mon_espirito_da_forja_infernal",
+    "drop_chance_percent": 13.6064,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 39,
+    "template_id": 5,
+    "card_id": "slc_req_giant_worm",
+    "drop_chance_percent": 10.9877,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 40,
+    "template_id": 5,
+    "card_id": "slc_mon_guardiao_do_pacto_sombrio",
+    "drop_chance_percent": 18.3599,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 41,
+    "template_id": 5,
+    "card_id": "slc_spl_sifao_de_vitalidade",
+    "drop_chance_percent": 4.3284,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 42,
+    "template_id": 5,
+    "card_id": "slc_req_troll",
+    "drop_chance_percent": 19.6433,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 43,
+    "template_id": 5,
+    "card_id": "slc_mon_demolidor_de_altares",
+    "drop_chance_percent": 3.0106,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 44,
+    "template_id": 5,
+    "card_id": "slc_req_dragonide",
+    "drop_chance_percent": 4.1671,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 45,
+    "template_id": 5,
+    "card_id": "slc_eqp_escudo_da_liturgia",
+    "drop_chance_percent": 2.1024,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 46,
+    "template_id": 5,
+    "card_id": "slc_mon_flagelador_de_ossos",
+    "drop_chance_percent": 1.5616,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 47,
+    "template_id": 5,
+    "card_id": "slc_eqp_grimorio_de_correntes",
+    "drop_chance_percent": 2.9211,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 48,
+    "template_id": 5,
+    "card_id": "slc_mon_lorde_da_cripta",
+    "drop_chance_percent": 1.274,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 49,
+    "template_id": 5,
+    "card_id": "slc_eqp_manopla_do_inferno",
+    "drop_chance_percent": 3.3399,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 50,
+    "template_id": 5,
+    "card_id": "slc_req_mountain_dragon",
+    "drop_chance_percent": 0.1803,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 51,
+    "template_id": 5,
+    "card_id": "slc_req_soul_reaper",
+    "drop_chance_percent": 0.8501,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 52,
+    "template_id": 5,
+    "card_id": "slc_req_akelodon",
+    "drop_chance_percent": 1.4711,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 53,
+    "template_id": 5,
+    "card_id": "slc_mon_devorador_de_juramentos",
+    "drop_chance_percent": 2.0191,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 54,
+    "template_id": 5,
+    "card_id": "slc_mon_predador_da_escuridao",
+    "drop_chance_percent": 1.9606,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 55,
+    "template_id": 5,
+    "card_id": "slc_mon_arauto_do_eclipse_sangrento",
+    "drop_chance_percent": 0.9856,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 56,
+    "template_id": 5,
+    "card_id": "slc_mon_executor_do_pacto_carmesim",
+    "drop_chance_percent": 3.7545,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Iniciante"
+  },
+  {
+    "id": 57,
+    "template_id": 6,
+    "card_id": "slc_req_fishman",
+    "drop_chance_percent": 33.9571,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 58,
+    "template_id": 6,
+    "card_id": "slc_req_skeleton",
+    "drop_chance_percent": 27.2627,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 59,
+    "template_id": 6,
+    "card_id": "slc_req_slime",
+    "drop_chance_percent": 47.8036,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 60,
+    "template_id": 6,
+    "card_id": "slc_eqp_bastao_do_bruxo_carmesim",
+    "drop_chance_percent": 48.5812,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 61,
+    "template_id": 6,
+    "card_id": "slc_req_bomber_bug",
+    "drop_chance_percent": 55.6498,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 62,
+    "template_id": 6,
+    "card_id": "slc_eqp_capuz_do_vigia_do_vazio",
+    "drop_chance_percent": 50.2067,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 63,
+    "template_id": 6,
+    "card_id": "slc_req_crab",
+    "drop_chance_percent": 64.0435,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 64,
+    "template_id": 6,
+    "card_id": "slc_mon_demonio_do_sussurro",
+    "drop_chance_percent": 28.6621,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 65,
+    "template_id": 6,
+    "card_id": "slc_req_giant_viper",
+    "drop_chance_percent": 39.2646,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 66,
+    "template_id": 6,
+    "card_id": "slc_eqp_manto_de_penitencia_macabra",
+    "drop_chance_percent": 51.0673,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 67,
+    "template_id": 6,
+    "card_id": "slc_req_plant_monster",
+    "drop_chance_percent": 39.1466,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 68,
+    "template_id": 6,
+    "card_id": "slc_mon_profanador_de_reliquias",
+    "drop_chance_percent": 42.4364,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 69,
+    "template_id": 6,
+    "card_id": "slc_mon_profeta_do_vazio_maldito",
+    "drop_chance_percent": 42.3426,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 70,
+    "template_id": 6,
+    "card_id": "slc_req_skeleton_archer",
+    "drop_chance_percent": 30.7983,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 71,
+    "template_id": 6,
+    "card_id": "slc_req_weranglerfish",
+    "drop_chance_percent": 55.9198,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 72,
+    "template_id": 6,
+    "card_id": "slc_eqp_adaga_de_enxofre",
+    "drop_chance_percent": 42.8458,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 73,
+    "template_id": 6,
+    "card_id": "slc_mon_algoz_do_abismo",
+    "drop_chance_percent": 37.2018,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 74,
+    "template_id": 6,
+    "card_id": "slc_eqp_anel_do_nono_circulo",
+    "drop_chance_percent": 28.6337,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 75,
+    "template_id": 6,
+    "card_id": "slc_mon_bruxo_da_lua_morta",
+    "drop_chance_percent": 49.0966,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 76,
+    "template_id": 6,
+    "card_id": "slc_mon_capataz_da_mina_macabra",
+    "drop_chance_percent": 51.1599,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 77,
+    "template_id": 6,
+    "card_id": "slc_spl_coro_dos_condenados",
+    "drop_chance_percent": 20.9274,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 78,
+    "template_id": 6,
+    "card_id": "slc_spl_coroa_da_noite_sem_fim",
+    "drop_chance_percent": 25.4382,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 79,
+    "template_id": 6,
+    "card_id": "slc_spl_correntes_do_inferno_fundo",
+    "drop_chance_percent": 33.6962,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 80,
+    "template_id": 6,
+    "card_id": "slc_mon_abominacao_de_cinzas",
+    "drop_chance_percent": 24.456,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 81,
+    "template_id": 6,
+    "card_id": "slc_req_mushroom_monster",
+    "drop_chance_percent": 48.042,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 82,
+    "template_id": 6,
+    "card_id": "slc_eqp_sino_da_ruina",
+    "drop_chance_percent": 42.7752,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 83,
+    "template_id": 6,
+    "card_id": "slc_req_skeleton_knight",
+    "drop_chance_percent": 27.4367,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 84,
+    "template_id": 6,
+    "card_id": "slc_req_skeleton_mage",
+    "drop_chance_percent": 47.5931,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 85,
+    "template_id": 6,
+    "card_id": "slc_mon_andarilho_da_carne_corrompida",
+    "drop_chance_percent": 51.1538,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 86,
+    "template_id": 6,
+    "card_id": "slc_eqp_armadura_da_cripta",
+    "drop_chance_percent": 51.9747,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 87,
+    "template_id": 6,
+    "card_id": "slc_mon_ceifador_do_selo",
+    "drop_chance_percent": 41.7374,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 88,
+    "template_id": 6,
+    "card_id": "slc_eqp_coroa_de_espinhos_ocultos",
+    "drop_chance_percent": 19.2539,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 89,
+    "template_id": 6,
+    "card_id": "slc_mon_espectro_do_castelo",
+    "drop_chance_percent": 28.5771,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 90,
+    "template_id": 6,
+    "card_id": "slc_mon_espirito_da_forja_infernal",
+    "drop_chance_percent": 34.7655,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 91,
+    "template_id": 6,
+    "card_id": "slc_req_giant_worm",
+    "drop_chance_percent": 42.4789,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 92,
+    "template_id": 6,
+    "card_id": "slc_mon_guardiao_do_pacto_sombrio",
+    "drop_chance_percent": 22.4348,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 93,
+    "template_id": 6,
+    "card_id": "slc_spl_sifao_de_vitalidade",
+    "drop_chance_percent": 3.1266,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 94,
+    "template_id": 6,
+    "card_id": "slc_req_troll",
+    "drop_chance_percent": 22.985,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 95,
+    "template_id": 6,
+    "card_id": "slc_mon_demolidor_de_altares",
+    "drop_chance_percent": 8.5004,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 96,
+    "template_id": 6,
+    "card_id": "slc_req_dragonide",
+    "drop_chance_percent": 4.3221,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 97,
+    "template_id": 6,
+    "card_id": "slc_eqp_escudo_da_liturgia",
+    "drop_chance_percent": 15.071,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 98,
+    "template_id": 6,
+    "card_id": "slc_mon_flagelador_de_ossos",
+    "drop_chance_percent": 18.2288,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 99,
+    "template_id": 6,
+    "card_id": "slc_eqp_grimorio_de_correntes",
+    "drop_chance_percent": 9.8941,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 100,
+    "template_id": 6,
+    "card_id": "slc_mon_lorde_da_cripta",
+    "drop_chance_percent": 7.7454,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 101,
+    "template_id": 6,
+    "card_id": "slc_eqp_manopla_do_inferno",
+    "drop_chance_percent": 13.9322,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 102,
+    "template_id": 6,
+    "card_id": "slc_req_mountain_dragon",
+    "drop_chance_percent": 0.9907,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 103,
+    "template_id": 6,
+    "card_id": "slc_req_soul_reaper",
+    "drop_chance_percent": 3.6522,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 104,
+    "template_id": 6,
+    "card_id": "slc_req_akelodon",
+    "drop_chance_percent": 10.4494,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 105,
+    "template_id": 6,
+    "card_id": "slc_mon_devorador_de_juramentos",
+    "drop_chance_percent": 8.6084,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 106,
+    "template_id": 6,
+    "card_id": "slc_mon_predador_da_escuridao",
+    "drop_chance_percent": 19.2455,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 107,
+    "template_id": 6,
+    "card_id": "slc_mon_arauto_do_eclipse_sangrento",
+    "drop_chance_percent": 1.0902,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 108,
+    "template_id": 6,
+    "card_id": "slc_mon_executor_do_pacto_carmesim",
+    "drop_chance_percent": 7.0887,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Aventureiro"
+  },
+  {
+    "id": 109,
+    "template_id": 7,
+    "card_id": "slc_req_fishman",
+    "drop_chance_percent": 9.732,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 110,
+    "template_id": 7,
+    "card_id": "slc_req_skeleton",
+    "drop_chance_percent": 9.9833,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 111,
+    "template_id": 7,
+    "card_id": "slc_req_slime",
+    "drop_chance_percent": 16.8386,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 112,
+    "template_id": 7,
+    "card_id": "slc_eqp_bastao_do_bruxo_carmesim",
+    "drop_chance_percent": 5.0984,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 113,
+    "template_id": 7,
+    "card_id": "slc_req_bomber_bug",
+    "drop_chance_percent": 13.0253,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 114,
+    "template_id": 7,
+    "card_id": "slc_eqp_capuz_do_vigia_do_vazio",
+    "drop_chance_percent": 15.5362,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 115,
+    "template_id": 7,
+    "card_id": "slc_req_crab",
+    "drop_chance_percent": 11.9935,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 116,
+    "template_id": 7,
+    "card_id": "slc_mon_demonio_do_sussurro",
+    "drop_chance_percent": 22.8204,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 117,
+    "template_id": 7,
+    "card_id": "slc_req_giant_viper",
+    "drop_chance_percent": 20.8436,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 118,
+    "template_id": 7,
+    "card_id": "slc_eqp_manto_de_penitencia_macabra",
+    "drop_chance_percent": 11.4729,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 119,
+    "template_id": 7,
+    "card_id": "slc_req_plant_monster",
+    "drop_chance_percent": 10.0325,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 120,
+    "template_id": 7,
+    "card_id": "slc_mon_profanador_de_reliquias",
+    "drop_chance_percent": 11.9802,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 121,
+    "template_id": 7,
+    "card_id": "slc_mon_profeta_do_vazio_maldito",
+    "drop_chance_percent": 20.5617,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 122,
+    "template_id": 7,
+    "card_id": "slc_req_skeleton_archer",
+    "drop_chance_percent": 7.3288,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 123,
+    "template_id": 7,
+    "card_id": "slc_req_weranglerfish",
+    "drop_chance_percent": 14.3194,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 124,
+    "template_id": 7,
+    "card_id": "slc_eqp_adaga_de_enxofre",
+    "drop_chance_percent": 61.029,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 125,
+    "template_id": 7,
+    "card_id": "slc_mon_algoz_do_abismo",
+    "drop_chance_percent": 48.7759,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 126,
+    "template_id": 7,
+    "card_id": "slc_eqp_anel_do_nono_circulo",
+    "drop_chance_percent": 31.6676,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 127,
+    "template_id": 7,
+    "card_id": "slc_mon_bruxo_da_lua_morta",
+    "drop_chance_percent": 28.8273,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 128,
+    "template_id": 7,
+    "card_id": "slc_mon_capataz_da_mina_macabra",
+    "drop_chance_percent": 63.5399,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 129,
+    "template_id": 7,
+    "card_id": "slc_spl_coro_dos_condenados",
+    "drop_chance_percent": 56.4067,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 130,
+    "template_id": 7,
+    "card_id": "slc_spl_coroa_da_noite_sem_fim",
+    "drop_chance_percent": 65.9072,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 131,
+    "template_id": 7,
+    "card_id": "slc_spl_correntes_do_inferno_fundo",
+    "drop_chance_percent": 58.0615,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 132,
+    "template_id": 7,
+    "card_id": "slc_mon_abominacao_de_cinzas",
+    "drop_chance_percent": 35.5418,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 133,
+    "template_id": 7,
+    "card_id": "slc_req_mushroom_monster",
+    "drop_chance_percent": 52.1209,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 134,
+    "template_id": 7,
+    "card_id": "slc_eqp_sino_da_ruina",
+    "drop_chance_percent": 42.9382,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 135,
+    "template_id": 7,
+    "card_id": "slc_req_skeleton_knight",
+    "drop_chance_percent": 61.2755,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 136,
+    "template_id": 7,
+    "card_id": "slc_req_skeleton_mage",
+    "drop_chance_percent": 39.1644,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 137,
+    "template_id": 7,
+    "card_id": "slc_mon_andarilho_da_carne_corrompida",
+    "drop_chance_percent": 58.6338,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 138,
+    "template_id": 7,
+    "card_id": "slc_eqp_armadura_da_cripta",
+    "drop_chance_percent": 38.95,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 139,
+    "template_id": 7,
+    "card_id": "slc_mon_ceifador_do_selo",
+    "drop_chance_percent": 67.0503,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 140,
+    "template_id": 7,
+    "card_id": "slc_eqp_coroa_de_espinhos_ocultos",
+    "drop_chance_percent": 60.1659,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 141,
+    "template_id": 7,
+    "card_id": "slc_mon_espectro_do_castelo",
+    "drop_chance_percent": 49.4419,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 142,
+    "template_id": 7,
+    "card_id": "slc_mon_espirito_da_forja_infernal",
+    "drop_chance_percent": 65.9879,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 143,
+    "template_id": 7,
+    "card_id": "slc_req_giant_worm",
+    "drop_chance_percent": 32.5309,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 144,
+    "template_id": 7,
+    "card_id": "slc_mon_guardiao_do_pacto_sombrio",
+    "drop_chance_percent": 52.2509,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 145,
+    "template_id": 7,
+    "card_id": "slc_spl_sifao_de_vitalidade",
+    "drop_chance_percent": 33.4346,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 146,
+    "template_id": 7,
+    "card_id": "slc_req_troll",
+    "drop_chance_percent": 55.6206,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 147,
+    "template_id": 7,
+    "card_id": "slc_mon_demolidor_de_altares",
+    "drop_chance_percent": 31.68,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 148,
+    "template_id": 7,
+    "card_id": "slc_req_dragonide",
+    "drop_chance_percent": 30.5807,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 149,
+    "template_id": 7,
+    "card_id": "slc_eqp_escudo_da_liturgia",
+    "drop_chance_percent": 22.0453,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 150,
+    "template_id": 7,
+    "card_id": "slc_mon_flagelador_de_ossos",
+    "drop_chance_percent": 30.5916,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 151,
+    "template_id": 7,
+    "card_id": "slc_eqp_grimorio_de_correntes",
+    "drop_chance_percent": 57.9173,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 152,
+    "template_id": 7,
+    "card_id": "slc_mon_lorde_da_cripta",
+    "drop_chance_percent": 28.6613,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 153,
+    "template_id": 7,
+    "card_id": "slc_eqp_manopla_do_inferno",
+    "drop_chance_percent": 23.5763,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 154,
+    "template_id": 7,
+    "card_id": "slc_req_mountain_dragon",
+    "drop_chance_percent": 5.363,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 155,
+    "template_id": 7,
+    "card_id": "slc_req_soul_reaper",
+    "drop_chance_percent": 7.9698,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 156,
+    "template_id": 7,
+    "card_id": "slc_req_akelodon",
+    "drop_chance_percent": 51.48,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 157,
+    "template_id": 7,
+    "card_id": "slc_mon_devorador_de_juramentos",
+    "drop_chance_percent": 10.0194,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 158,
+    "template_id": 7,
+    "card_id": "slc_mon_predador_da_escuridao",
+    "drop_chance_percent": 27.6171,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 159,
+    "template_id": 7,
+    "card_id": "slc_mon_arauto_do_eclipse_sangrento",
+    "drop_chance_percent": 19.5065,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  },
+  {
+    "id": 160,
+    "template_id": 7,
+    "card_id": "slc_mon_executor_do_pacto_carmesim",
+    "drop_chance_percent": 37.2935,
+    "is_active": 1,
+    "created_at": "2026-03-05 19:39:03",
+    "updated_at": "2026-03-05 19:39:03",
+    "template_name": "Duelista Veterano"
+  }
+]

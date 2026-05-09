@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: kardum
+      POSTGRES_PASSWORD: kardum
+      POSTGRES_DB: kardum
+    ports:
+      - "5432:5432"
+    volumes:
+      - kardum_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kardum -d kardum"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - kardum_redis_data:/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgres://kardum:kardum@db:5432/kardum
+      REDIS_URL: redis://redis:6379
+      MMO_DISTRIBUTED_STATE_ENABLED: "true"
+      MMO_SHARD_AUTHORITY_ENABLED: "true"
+      MM_MATCHMAKING_REDIS_ENABLED: "true"
+      UPLOADS_DIR: /app/uploads
+      # Keep JWT/Admin defaults from .env if you use env_file below.
+    env_file:
+      - ./.env
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  kardum_pg_data:
+  kardum_redis_data:
+

@@ -1,0 +1,14 @@
+{
+  "$comment": "Golden dataset. Cada entrada: input (template + spawn_uid) -> expected cooldown/step range. Usado em dataset-validation.test.ts pra detectar mudanças não-intencionais no algoritmo de personalidade. Se o algoritmo mudar de propósito, regenerar este arquivo com o helper tests/helpers/regen-golden.ts (a ser criado).",
+  "entries": [
+    { "spawn_uid": "spawn_z1",  "template_name": "Zombie",   "expectedCooldownMin": 4, "expectedCooldownMax": 10 },
+    { "spawn_uid": "spawn_sk1", "template_name": "Skeleton", "expectedCooldownMin": 2, "expectedCooldownMax": 7  },
+    { "spawn_uid": "spawn_gb1", "template_name": "Goblin",   "expectedCooldownMin": 1, "expectedCooldownMax": 4  },
+    { "spawn_uid": "spawn_tr1", "template_name": "Troll",    "expectedCooldownMin": 2, "expectedCooldownMax": 8  },
+    { "spawn_uid": "spawn_li1", "template_name": "Lich",     "expectedCooldownMin": 3, "expectedCooldownMax": 9  },
+    { "spawn_uid": "spawn_de1", "template_name": "Demon",    "expectedCooldownMin": 1, "expectedCooldownMax": 6  },
+    { "spawn_uid": "spawn_wy1", "template_name": "Wyvern",   "expectedCooldownMin": 1, "expectedCooldownMax": 6  },
+    { "spawn_uid": "spawn_an1", "template_name": "Ant",      "expectedCooldownMin": 1, "expectedCooldownMax": 5  },
+    { "spawn_uid": "spawn_un1", "template_name": "UnknownType", "expectedCooldownMin": 1, "expectedCooldownMax": 5 }
+  ]
+}

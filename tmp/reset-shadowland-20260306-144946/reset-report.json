@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-03-06T18:49:46.746Z",
+  "outputDir": "E:\\PROJETOS\\Kardum Mobile\\tmp\\reset-shadowland-20260306-144946",
+  "snapshots": {
+    "templates": 3,
+    "spawns": 2,
+    "drops": 156,
+    "shadowlandCardsBefore": 46
+  },
+  "reseed": {
+    "created": 0,
+    "updated": 95,
+    "removed": 1,
+    "total": 95
+  },
+  "rebuilt": {
+    "templates": 3,
+    "spawns": 2,
+    "drops": 135,
+    "dropsFilteredOut": 21
+  },
+  "validation": {
+    "nonShadowTemplatesCount": 0,
+    "invalidDropsCount": 0,
+    "orphanTemplateDecksCount": 0
+  },
+  "finalCounts": {
+    "templates": 3,
+    "spawns": 2,
+    "drops": 135,
+    "decks": 3
+  }
+}
