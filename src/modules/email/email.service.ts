@@ -1,7 +1,11 @@
 import { Resend } from 'resend';
 import { ENV } from '../../config/env';
 
-const resend = new Resend(ENV.RESEND_API_KEY);
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (!_resend) _resend = new Resend(ENV.RESEND_API_KEY || 'placeholder');
+  return _resend;
+}
 
 function verificationEmailHtml(username: string, verifyUrl: string): string {
   return `
@@ -37,7 +41,7 @@ export class EmailService {
       return;
     }
     const verifyUrl = `${ENV.FRONTEND_URL}/verify-email?token=${token}`;
-    await resend.emails.send({
+    await getResend().emails.send({
       from: ENV.EMAIL_FROM,
       to,
       subject: 'Confirme seu email — Kardum',
@@ -47,7 +51,7 @@ export class EmailService {
 
   async sendWelcomeEmail(to: string, username: string): Promise<void> {
     if (!ENV.RESEND_API_KEY) return;
-    await resend.emails.send({
+    await getResend().emails.send({
       from: ENV.EMAIL_FROM,
       to,
       subject: 'Conta ativada — Kardum',

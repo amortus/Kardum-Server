@@ -101,10 +101,19 @@ export function createApp(): Express {
     res.status(404).json({ error: 'Not found' });
   });
 
-  // Error handler
+  // JSON parse error handler (body-parser throws SyntaxError → deve ser 400, não 500)
+  app.use((err: any, _req: Request, res: Response, next: any) => {
+    if (err?.type === 'entity.parse.failed' || err instanceof SyntaxError) {
+      res.status(400).json({ error: 'Invalid JSON body' });
+      return;
+    }
+    next(err);
+  });
+
+  // Error handler genérico
   app.use((err: Error, _req: Request, res: Response, _next: any) => {
     console.error('Error:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Internal server error',
       message: ENV.NODE_ENV === 'development' ? err.message : undefined
     });

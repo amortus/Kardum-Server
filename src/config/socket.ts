@@ -194,6 +194,18 @@ async function finalizeMatchAndBroadcast(
     return true;
   }
 
+  // Validação de integridade: apenas jogadores da partida podem finalizá-la.
+  // requestedByUserId === 0 indica finalização interna (watchdog/sistema).
+  if (match && requestedByUserId > 0) {
+    const p1 = Number(match.player1Id);
+    const p2 = Number(match.player2Id);
+    if (requestedByUserId !== p1 && requestedByUserId !== p2) {
+      emitError?.('Not authorized to end this match');
+      console.warn('[Match] Unauthorized finalize attempt:', { matchId, requestedByUserId, p1, p2 });
+      return false;
+    }
+  }
+
   // Resultado do encounter é sempre do ponto de vista do jogador humano (player1 em partidas AI/PvE).
   // Nunca usar finishEncounter antes de resolver o match: requestedByUserId === 0 ou confundir
   // vencedor com o requester gerava 'loss' indevido e zerava progresso de quest.

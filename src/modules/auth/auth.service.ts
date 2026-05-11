@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { ENV } from '../../config/env';
 import { GAME_CONSTANTS } from '../../shared/constants';
-import { dbHelpers } from '../../config/database';
+import { dbHelpers, usePostgres } from '../../config/database';
 import userRepository from '../users/user.repository';
 import emailService from '../email/email.service';
 import type { User } from '../../shared/types';
@@ -114,9 +114,10 @@ export class AuthService {
     }
 
     const recordAttempt = async (success: boolean) => {
+      const successVal = usePostgres ? success : (success ? 1 : 0);
       await dbHelpers.run(
         `INSERT INTO login_attempts (identifier, ip_address, success) VALUES (?, ?, ?)`,
-        [identifier.toLowerCase(), ip_address, success ? 1 : 0]
+        [identifier.toLowerCase(), ip_address, successVal]
       ).catch(() => {});
     };
 
@@ -274,13 +275,17 @@ export class AuthService {
 
   private async _checkLoginAttempts(identifier: string, ip: string): Promise<void> {
     const windowMs = ENV.LOGIN_WINDOW_MINUTES * 60 * 1000;
-    const since = new Date(Date.now() - windowMs).toISOString();
+    const sinceIso = new Date(Date.now() - windowMs).toISOString();
+    // SQLite usa "YYYY-MM-DD HH:MM:SS"; PostgreSQL aceita ISO com T e Z
+    const since = usePostgres ? sinceIso : sinceIso.replace('T', ' ').replace(/\.\d{3}Z$/, '');
     const maxAttempts = ENV.LOGIN_MAX_ATTEMPTS;
+
+    const failVal = usePostgres ? false : 0;
 
     const byIdentifier = await dbHelpers.query<{ cnt: number }>(
       `SELECT COUNT(*) as cnt FROM login_attempts
        WHERE LOWER(identifier) = LOWER(?) AND success = ? AND attempted_at > ?`,
-      [identifier, false, since]
+      [identifier, failVal, since]
     );
     if ((byIdentifier?.cnt || 0) >= maxAttempts) {
       throw Object.assign(
@@ -292,7 +297,7 @@ export class AuthService {
     const byIp = await dbHelpers.query<{ cnt: number }>(
       `SELECT COUNT(*) as cnt FROM login_attempts
        WHERE ip_address = ? AND success = ? AND attempted_at > ?`,
-      [ip, false, since]
+      [ip, failVal, since]
     );
     if ((byIp?.cnt || 0) >= maxAttempts * 3) {
       throw Object.assign(
