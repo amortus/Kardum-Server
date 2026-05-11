@@ -194,14 +194,25 @@ async function finalizeMatchAndBroadcast(
     return true;
   }
 
-  // Validação de integridade: apenas jogadores da partida podem finalizá-la.
-  // requestedByUserId === 0 indica finalização interna (watchdog/sistema).
+  // Validação de integridade de partida.
+  // requestedByUserId === 0 indica finalização interna (watchdog/sistema) — sem restrições.
   if (match && requestedByUserId > 0) {
     const p1 = Number(match.player1Id);
     const p2 = Number(match.player2Id);
+
+    // Regra 1: só jogadores DA partida podem finalizá-la.
     if (requestedByUserId !== p1 && requestedByUserId !== p2) {
       emitError?.('Not authorized to end this match');
-      console.warn('[Match] Unauthorized finalize attempt:', { matchId, requestedByUserId, p1, p2 });
+      console.warn('[Match] Unauthorized finalize attempt (not a player):', { matchId, requestedByUserId, p1, p2 });
+      return false;
+    }
+
+    // Regra 2: um jogador só pode declarar o OPONENTE como vencedor (surrender).
+    // Declarar a si mesmo como vencedor via match:end é fraude — vitórias legítimas
+    // vêm do estado do jogo (maybeFinalizeMatchFromState) com requestedByUserId === 0.
+    if (requestedByUserId === winnerId) {
+      emitError?.('Players cannot declare themselves winner — use game state');
+      console.warn('[Match] Fraudulent win attempt:', { matchId, requestedByUserId, winnerId });
       return false;
     }
   }
