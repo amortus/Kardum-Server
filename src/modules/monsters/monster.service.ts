@@ -393,12 +393,12 @@ class MonsterService {
         monster.x = Math.round(nextX);
         monster.y = Math.round(nextY);
       } else {
-        // Fora do raio: reposiciona para um ponto aleatório dentro de 70% do raio
-        // (não volta ao spawn direto — evita o efeito de "sumiu e reapareceu no spawn").
-        const wanderAngle = Math.random() * Math.PI * 2;
-        const wanderDist  = monster.move_radius * (0.3 + Math.random() * 0.4);
-        monster.x = Math.round(monster.spawn_x + Math.cos(wanderAngle) * wanderDist);
-        monster.y = Math.round(monster.spawn_y + Math.sin(wanderAngle) * wanderDist);
+        // Fora do raio: caminha de volta ao spawn em passos pequenos — sem teleporte.
+        // Preserva o fix original (commit 73f5018): atan2 + returnStep gradual.
+        const backAngle = Math.atan2(monster.spawn_y - monster.y, monster.spawn_x - monster.x);
+        const returnStep = state!.stepMin + Math.random() * (state!.stepMax - state!.stepMin);
+        monster.x = Math.round(monster.x + Math.cos(backAngle) * returnStep);
+        monster.y = Math.round(monster.y + Math.sin(backAngle) * returnStep);
       }
 
       // Novo cooldown aleatório para o próximo ciclo de idle.

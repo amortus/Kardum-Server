@@ -36,12 +36,14 @@ const XSS_PAYLOADS = [
 ];
 
 describe('[SECURITY] /api/auth/login — inputs maliciosos', () => {
-  it.each(SQL_INJECTIONS)('SQL injection em username: %s → não crasha', async (payload) => {
+  it.each(SQL_INJECTIONS)('SQL injection em username: %s → não crasha e não autentica', async (payload) => {
     const res = await request(app)
       .post('/api/auth/login')
       .send({ username: payload, password: 'x' });
-    expect(res.status).toBeLessThan(500); // não é 500
-    expect([400, 401, 403, 404]).toContain(res.status);
+    expect(res.status).toBeLessThan(500); // nunca 500
+    // 429 = rate limit ativo (também correto — mais seguro que 401)
+    expect([400, 401, 403, 404, 429]).toContain(res.status);
+    expect(res.body.token).toBeFalsy(); // nunca retorna token
   });
 
   it.each(XSS_PAYLOADS)('XSS em username: %s → não crasha', async (payload) => {
