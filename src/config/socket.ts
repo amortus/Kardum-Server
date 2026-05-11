@@ -75,6 +75,10 @@ const zoneMonsterBroadcastState = new Map<
 const lastQuestPositionSyncAt = new Map<number, number>();
 const lastWorldPositionPersistAt = new Map<number, number>();
 
+// Nonces de sessão para admins — gerados no connect, requeridos em admin:match:force_end.
+// Garante que o evento só funciona em clientes que realmente receberam o nonce via socket.
+const adminSessionNonces = new Map<number, string>();
+
 const MMO_WORLD_PERSIST_INTERVAL_MS = 2500;
 // Loose anti-teleport guard. We apply stricter validation later if needed.
 const MMO_WORLD_MAX_JUMP_DISTANCE = 1800;
@@ -493,6 +497,14 @@ export async function setupSocketIO(server: HTTPServer): Promise<SocketIOServer>
     }
     userSockets.get(userId)!.add(socket.id);
     socket.join(`user:${userId}`);
+
+    // Gera nonce de sessão para admins — necessário para admin:match:force_end
+    if (socket.user?.isAdmin) {
+      const { randomBytes } = require('crypto');
+      const nonce: string = randomBytes(24).toString('hex');
+      adminSessionNonces.set(userId, nonce);
+      socket.emit('admin:session_nonce', { nonce });
+    }
 
     // Force-logout previous sessions if a new login happened
     const { AuthService } = require('../modules/auth/auth.service');
@@ -1446,9 +1458,40 @@ export async function setupSocketIO(server: HTTPServer): Promise<SocketIOServer>
     socket.on('pvp:match:surrender', handleMatchSurrender);
     socket.on('match:surrender', handleMatchSurrender);
 
+    // ── Admin: forçar fim de partida (somente admin + nonce de sessão) ──────────
+    socket.on('admin:match:force_end', async (data: { matchId?: number | string; winnerId?: number | string; nonce?: string }) => {
+      if (!socket.user?.isAdmin) {
+        socket.emit(SOCKET_EVENTS.PVP_ERROR, { message: 'Admin only' });
+        return;
+      }
+      const expectedNonce = adminSessionNonces.get(userId);
+      if (!expectedNonce || data?.nonce !== expectedNonce) {
+        socket.emit(SOCKET_EVENTS.PVP_ERROR, { message: 'Invalid admin session nonce' });
+        console.warn('[Admin] force_end rejeitado: nonce inválido', { userId });
+        return;
+      }
+      const matchId = Number(data?.matchId);
+      const winnerId = Number(data?.winnerId);
+      if (!Number.isFinite(matchId) || matchId <= 0 || !Number.isFinite(winnerId) || winnerId <= 0) {
+        socket.emit(SOCKET_EVENTS.PVP_ERROR, { message: 'matchId e winnerId obrigatórios' });
+        return;
+      }
+      console.log('[Admin] force_end solicitado', { matchId, winnerId, adminId: userId });
+      // requestedByUserId = 0 bypassa a validação de jogador da partida
+      await finalizeMatchAndBroadcast(
+        io,
+        { matchId, winnerId },
+        0,
+        (msg) => socket.emit(SOCKET_EVENTS.PVP_ERROR, { message: msg })
+      );
+    });
+
     // Disconnection
     socket.on(SOCKET_EVENTS.DISCONNECT, () => {
       console.log(`[Socket.IO] User ${userId} (${username}) disconnected`);
+
+      // Limpa nonce de sessão admin
+      adminSessionNonces.delete(userId);
 
       // Remove from queues
       matchmakingService.removeFromQueue(userId, 'casual');
